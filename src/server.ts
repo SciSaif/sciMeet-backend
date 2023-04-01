@@ -14,12 +14,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes);
 
 const server = http.createServer(app);
 
 app.use(errorHandler);
 
 server.listen(PORT, () => {
-    console.log(`Server is  running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
