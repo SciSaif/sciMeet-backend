@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 
 // function to handle async/await errors in express routes and also validate the request body
 const asyncRequestHandler = <TQuery>(
     schema: z.Schema<TQuery> | null,
     fn: (
-        req: Request<any, any, TQuery> & { user: string | jwt.JwtPayload },
+        req: Request<any, any, TQuery> & {
+            user: { _id: string; email: string };
+        },
         res: Response,
         next: NextFunction,
         ...args: any

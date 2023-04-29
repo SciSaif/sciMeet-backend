@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
 import asyncRequestHandler from "../utils/asyncRequestHandler.js";
-import { z } from "zod";
 
 const config = process.env;
 
+export type JwtDecoded = { _id: string; email: string };
+
 const protect = asyncRequestHandler(null, async (req, res, next) => {
     let token: string;
-
     if (
         req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")
@@ -16,9 +16,7 @@ const protect = asyncRequestHandler(null, async (req, res, next) => {
 
             const decoded = jwt.verify(token, config.JWT_SECRET!);
 
-            console.log(decoded);
-
-            req.user = decoded;
+            req.user = decoded as JwtDecoded;
         } catch (error) {
             console.error(error);
             res.status(401);
