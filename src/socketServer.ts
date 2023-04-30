@@ -6,6 +6,8 @@ import { newConnectionHandler } from "./socketHandlers/newConnectionHandler.js";
 import { disconnectHandler } from "./socketHandlers/disconnectHandler.js";
 import { JwtDecoded } from "./middlewares/protectMiddleware.js";
 import { getOnlineUsers, setSocketServerInstance } from "./serverStore.js";
+import { directMessageHandler } from "./socketHandlers/directMessageHandler.js";
+import { directChatHistoryHandler } from "./socketHandlers/directChatHistoryHandler.js";
 
 interface ServerToClientEvents {
     noArg: () => void;
@@ -14,10 +16,13 @@ interface ServerToClientEvents {
     "friends-invitations": (a: { pendingInvitations: any }) => void;
     "friends-list": (a: { friends: any }) => void;
     "online-users": (a: { onlineUsers: any }) => void;
+    "direct-chat-history": (a: any) => void;
 }
 
 interface ClientToServerEvents {
     hello: () => void;
+    "direct-message": (data: any) => void;
+    "direct-chat-history": (a: any) => void;
 }
 
 interface InterServerEvents {
@@ -75,6 +80,15 @@ export const registerSocketServer = (server: HttpServer) => {
 
         newConnectionHandler(socket, io);
         emitOnlineUsers();
+
+        socket.on("direct-message", (data) => {
+            directMessageHandler(socket, data);
+        });
+
+        socket.on("direct-chat-history", (data) => {
+            console.log("direct-chat-history", data);
+            directChatHistoryHandler(socket, data);
+        });
 
         socket.on("disconnect", () => {
             console.log("disconnected");
