@@ -14,9 +14,11 @@ export const updateFriendsPendingInvitations = async (userId: string) => {
 
         const pendingInvitations = await FriendInvitation.find({
             receiverId: userId,
-        }).populate("senderId", "_id username email");
+        }).populate("senderId", "_id username email avatar");
 
         const io = getSocketServerInstance();
+
+        console.log("pendingInvitations", pendingInvitations);
 
         receiverList.forEach((receiverSocketId) => {
             io.to(receiverSocketId).emit("friends-invitations", {
@@ -35,7 +37,10 @@ export const updateFriends = async (userId: string) => {
         const user = await User.findById(userId, {
             _id: 1,
             friends: 1,
-        }).populate<{ friends: UserType[] }>("friends", "_id username email");
+        }).populate<{ friends: UserType[] }>(
+            "friends",
+            "_id username email avatar"
+        );
 
         // find active connections of specific id (online users)
         const receiverList = getActiveConnections(userId);
@@ -48,6 +53,7 @@ export const updateFriends = async (userId: string) => {
                     _id: f._id,
                     email: f.email,
                     username: f.username,
+                    avatar: f.avatar,
                 };
             });
 

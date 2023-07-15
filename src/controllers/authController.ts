@@ -56,6 +56,7 @@ export const login = asyncRequestHandler(null, async (req, res) => {
             email,
             _id: user?._id,
             username: user.username,
+            avatar: user.avatar,
             newUser: statusCode === 201,
         });
     } else {
@@ -76,10 +77,12 @@ export const setUsername = asyncRequestHandler(
             .min(3)
             .max(20)
             .regex(/^[a-zA-Z0-9]+$/, "Username should not contain spaces"),
+
+        avatar: z.string(),
     }),
     async (req, res) => {
         const { user } = req;
-        const { username } = req.body;
+        const { username, avatar } = req.body;
 
         // check if username is already taken
         const userExists = await User.exists({ username });
@@ -92,7 +95,7 @@ export const setUsername = asyncRequestHandler(
         // update the username
         const updatedUser = await User.findByIdAndUpdate(
             user._id,
-            { username },
+            { username, avatar },
             { new: true }
         );
 
@@ -101,6 +104,9 @@ export const setUsername = asyncRequestHandler(
             throw new Error("Failed to update username");
         }
 
-        res.json({ username: updatedUser.username });
+        res.json({
+            username: updatedUser.username,
+            avatar: updatedUser.avatar,
+        });
     }
 );

@@ -6,6 +6,7 @@ const userSchema = new Schema({
     email: { type: String, unique: true, required: true },
     username: { type: String, unique: true, required: false },
     friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    avatar: {type: String}
 });
 
 export type UserType = InferSchemaType<typeof userSchema> & { _id: string };
