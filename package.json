@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -p .",
     "start": "node dist/server.js",
-    "dev": "nodemon --esm src/server.ts"
+    "dev": "nodemon --delay 500ms --esm src/server.ts"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +15,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.13",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/uuid": "^9.0.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
@@ -23,6 +24,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.2",
     "socket.io": "^4.6.1",
+    "uuid": "^9.0.0",
     "zod": "^3.21.4",
     "zod-validation-error": "^1.1.0"
   },

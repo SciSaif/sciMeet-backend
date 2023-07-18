@@ -5,9 +5,16 @@ import authSocket from "./middlewares/authSocket.js";
 import { newConnectionHandler } from "./socketHandlers/newConnectionHandler.js";
 import { disconnectHandler } from "./socketHandlers/disconnectHandler.js";
 import { JwtDecoded } from "./middlewares/protectMiddleware.js";
-import { getOnlineUsers, setSocketServerInstance } from "./serverStore.js";
+import {
+    ActiveRoom,
+    getOnlineUsers,
+    setSocketServerInstance,
+} from "./serverStore.js";
 import { directMessageHandler } from "./socketHandlers/directMessageHandler.js";
 import { directChatHistoryHandler } from "./socketHandlers/directChatHistoryHandler.js";
+import { roomCreateHandler } from "./socketHandlers/roomCreateHandler.js";
+import { roomJoinHandler } from "./socketHandlers/roomJoinHandler.js";
+import { roomLeavehandler } from "./socketHandlers/roomLeaveHandler.js";
 
 interface ServerToClientEvents {
     noArg: () => void;
@@ -17,12 +24,17 @@ interface ServerToClientEvents {
     "friends-list": (a: { friends: any }) => void;
     "online-users": (a: { onlineUsers: any }) => void;
     "direct-chat-history": (a: any) => void;
+    "room-create": (a: { roomDetails: ActiveRoom }) => void;
+    "active-rooms": (a: { activeRooms: ActiveRoom[] }) => void;
 }
 
 interface ClientToServerEvents {
     hello: () => void;
     "direct-message": (data: any) => void;
     "direct-chat-history": (a: any) => void;
+    "room-create": () => void;
+    "join-room": (a: { roomid: string }) => void;
+    "leave-room": (a: { roomid: string }) => void;
 }
 
 interface InterServerEvents {
@@ -88,6 +100,20 @@ export const registerSocketServer = (server: HttpServer) => {
         socket.on("direct-chat-history", (data) => {
             console.log("direct-chat-history", data);
             directChatHistoryHandler(socket, data);
+        });
+
+        socket.on("room-create", () => {
+            roomCreateHandler(socket);
+        });
+
+        socket.on("join-room", (data) => {
+            console.log("join room");
+            roomJoinHandler(socket, data);
+        });
+
+        socket.on("leave-room", (data) => {
+            console.log("leave room");
+            roomLeavehandler(socket, data);
         });
 
         socket.on("disconnect", () => {
