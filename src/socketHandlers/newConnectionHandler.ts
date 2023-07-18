@@ -4,6 +4,7 @@ import {
     updateFriends,
     updateFriendsPendingInvitations,
 } from "./updates/friends.js";
+import { updateRooms } from "./updates/rooms.js";
 
 export const newConnectionHandler = async (
     socket: SocketType,
@@ -17,4 +18,7 @@ export const newConnectionHandler = async (
     updateFriendsPendingInvitations(user._id);
     // update friends list
     updateFriends(user._id);
+    setTimeout(() => {
+        updateRooms(socket.id);
+    }, 2000);
 };
