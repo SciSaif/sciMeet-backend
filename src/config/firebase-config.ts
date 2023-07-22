@@ -9,7 +9,7 @@ const serviceAccount = JSON.parse(
     process.env.FIREBASE_SERVICE_ACCOUNT as string
 );
 // console.log("serviceAccount", process.env.FIREBASE_SERVICE_ACCOUNT);
-console.log("serviceAccount", serviceAccount);
+// console.log("serviceAccount", serviceAccount);
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });

@@ -15,6 +15,12 @@ import { directChatHistoryHandler } from "./socketHandlers/directChatHistoryHand
 import { roomCreateHandler } from "./socketHandlers/roomCreateHandler.js";
 import { roomJoinHandler } from "./socketHandlers/roomJoinHandler.js";
 import { roomLeavehandler } from "./socketHandlers/roomLeaveHandler.js";
+import { roomInitializeConnectionHandler } from "./socketHandlers/roomInitializeConnectionHandler.js";
+import { roomSignalingDataHandler } from "./socketHandlers/roomSignalingDatahandler.js";
+
+export type ConnUserSocketIdType = {
+    connUserSocketId: string;
+};
 
 interface ServerToClientEvents {
     noArg: () => void;
@@ -26,6 +32,9 @@ interface ServerToClientEvents {
     "direct-chat-history": (a: any) => void;
     "room-create": (a: { roomDetails: ActiveRoom }) => void;
     "active-rooms": (a: { activeRooms: ActiveRoom[] }) => void;
+    "conn-prepare": (a: ConnUserSocketIdType) => void;
+    "conn-init": (a: ConnUserSocketIdType) => void;
+    "conn-signal": (a: any) => void;
 }
 
 interface ClientToServerEvents {
@@ -35,6 +44,8 @@ interface ClientToServerEvents {
     "room-create": () => void;
     "join-room": (a: { roomid: string }) => void;
     "leave-room": (a: { roomid: string }) => void;
+    "conn-init": (a: ConnUserSocketIdType) => void;
+    "conn-signal": (a: any) => void;
 }
 
 interface InterServerEvents {
@@ -114,6 +125,14 @@ export const registerSocketServer = (server: HttpServer) => {
         socket.on("leave-room", (data) => {
             console.log("leave room");
             roomLeavehandler(socket, data);
+        });
+
+        socket.on("conn-init", (data) => {
+            roomInitializeConnectionHandler(socket, data);
+        });
+
+        socket.on("conn-signal", (data) => {
+            roomSignalingDataHandler(socket, data);
         });
 
         socket.on("disconnect", () => {
