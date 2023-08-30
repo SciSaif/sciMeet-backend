@@ -84,7 +84,10 @@ export const getActiveRooms = () => {
 };
 
 export const getActiveRoom = (roomId: string) => {
-    return activeRooms.find((room) => room.roomid === roomId);
+    const activeRoom = activeRooms.find((room) => room.roomid === roomId);
+
+    if (!activeRoom) return null;
+    return { ...activeRoom };
 };
 
 export const joinActiveRoom = (
@@ -125,4 +128,6 @@ export const leaveActiveRoom = (
     if (copyOfActiveRoom.participants.length > 0) {
         activeRooms = [...activeRooms, copyOfActiveRoom];
     }
+
+    console.log("new active rooms: ", activeRooms);
 };

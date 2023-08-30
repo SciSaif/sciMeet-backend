@@ -13,6 +13,16 @@ export const roomLeavehandler = (
     if (activeRoom) {
         leaveActiveRoom(roomid, socket.id);
 
+        const updatedActiveRoom = getActiveRoom(roomid);
+        if (updatedActiveRoom) {
+            console.log("participants", updatedActiveRoom.participants);
+            updatedActiveRoom.participants.forEach((participant) => {
+                socket.to(participant.socketId).emit("room-participant-left", {
+                    connUserSocketId: socket.id,
+                });
+            });
+        }
+
         updateRooms();
     }
 };

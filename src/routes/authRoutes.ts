@@ -8,8 +8,9 @@ const router = express.Router();
 router.post("/login", login);
 router.post("/setUsername", protect, setUsername);
 
-router.get("/test", protect, (req: any, res) => {
-    let output = { user: req.user };
-    res.json(output);
+router.post("/test", (req: any, res) => {
+    console.log(req);
+    res.json(req.body);
 });
+
 export default router;

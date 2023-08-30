@@ -35,6 +35,7 @@ interface ServerToClientEvents {
     "conn-prepare": (a: ConnUserSocketIdType) => void;
     "conn-init": (a: ConnUserSocketIdType) => void;
     "conn-signal": (a: any) => void;
+    "room-participant-left": (a: ConnUserSocketIdType) => void;
 }
 
 interface ClientToServerEvents {
