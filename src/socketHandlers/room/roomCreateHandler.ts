@@ -1,6 +1,6 @@
-import { addNewActiveRoom } from "../serverStore.js";
-import { SocketType } from "../socketServer.js";
-import { updateRooms } from "./updates/rooms.js";
+import { addNewActiveRoom } from "../../serverStore.js";
+import { SocketType } from "../../socketServer.js";
+import { updateRooms } from "../updates/rooms.js";
 
 export const roomCreateHandler = (socket: SocketType) => {
     console.log("handling room create event");

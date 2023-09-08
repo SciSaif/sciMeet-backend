@@ -15,6 +15,14 @@ const conversationSchema = new Schema({
             ref: "Message",
         },
     ],
+    isGroup: {
+        type: Boolean,
+        default: false,
+    },
+    groupId: {
+        type: Schema.Types.ObjectId,
+        ref: "Group",
+    },
 });
 
 export default mongoose.model("Conversation", conversationSchema);

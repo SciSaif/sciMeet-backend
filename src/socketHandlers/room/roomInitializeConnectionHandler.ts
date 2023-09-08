@@ -1,4 +1,4 @@
-import { ConnUserSocketIdType, SocketType } from "../socketServer.js";
+import { ConnUserSocketIdType, SocketType } from "../../socketServer.js";
 
 export const roomInitializeConnectionHandler = (
     socket: SocketType,

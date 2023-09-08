@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 
 // function to handle async/await errors in express routes and also validate the request body
 const asyncRequestHandler = <TQuery>(
-    schema: z.Schema<TQuery> | null,
+    schema: z.Schema<TQuery> | null, // request body
     fn: (
         req: Request<any, any, TQuery> & {
             user: { _id: string; email: string };

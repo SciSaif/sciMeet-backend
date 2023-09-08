@@ -10,13 +10,13 @@ import {
     getOnlineUsers,
     setSocketServerInstance,
 } from "./serverStore.js";
-import { directMessageHandler } from "./socketHandlers/directMessageHandler.js";
-import { directChatHistoryHandler } from "./socketHandlers/directChatHistoryHandler.js";
-import { roomCreateHandler } from "./socketHandlers/roomCreateHandler.js";
-import { roomJoinHandler } from "./socketHandlers/roomJoinHandler.js";
-import { roomLeavehandler } from "./socketHandlers/roomLeaveHandler.js";
-import { roomInitializeConnectionHandler } from "./socketHandlers/roomInitializeConnectionHandler.js";
-import { roomSignalingDataHandler } from "./socketHandlers/roomSignalingDatahandler.js";
+import { directChatHistoryHandler } from "./socketHandlers/chat/directChatHistoryHandler.js";
+import { roomCreateHandler } from "./socketHandlers/room/roomCreateHandler.js";
+import { roomJoinHandler } from "./socketHandlers/room/roomJoinHandler.js";
+import { roomLeavehandler } from "./socketHandlers/room/roomLeaveHandler.js";
+import { roomInitializeConnectionHandler } from "./socketHandlers/room/roomInitializeConnectionHandler.js";
+import { roomSignalingDataHandler } from "./socketHandlers/room/roomSignalingDatahandler.js";
+import { directMessageHandler } from "./socketHandlers/chat/directMessageHandler.js";
 
 export type ConnUserSocketIdType = {
     connUserSocketId: string;
@@ -41,7 +41,10 @@ interface ServerToClientEvents {
 interface ClientToServerEvents {
     hello: () => void;
     "direct-message": (data: any) => void;
-    "direct-chat-history": (a: any) => void;
+    "direct-chat-history": (a: {
+        friend_id: string;
+        pageNumber?: number;
+    }) => void;
     "room-create": () => void;
     "join-room": (a: { roomid: string }) => void;
     "leave-room": (a: { roomid: string }) => void;
@@ -105,14 +108,20 @@ export const registerSocketServer = (server: HttpServer) => {
         newConnectionHandler(socket, io);
         emitOnlineUsers();
 
+        // ----------------------------------------------------------------------------
+        // chat related evetns
+
         socket.on("direct-message", (data) => {
             directMessageHandler(socket, data);
         });
 
         socket.on("direct-chat-history", (data) => {
             console.log("direct-chat-history", data);
-            directChatHistoryHandler(socket, data);
+            directChatHistoryHandler(socket, data.friend_id, data.pageNumber);
         });
+
+        // ----------------------------------------------------------------------------
+        // room related events
 
         socket.on("room-create", () => {
             roomCreateHandler(socket);
@@ -135,6 +144,8 @@ export const registerSocketServer = (server: HttpServer) => {
         socket.on("conn-signal", (data) => {
             roomSignalingDataHandler(socket, data);
         });
+
+        // ----------------------------------------------------------------------------
 
         socket.on("disconnect", () => {
             console.log("disconnected");

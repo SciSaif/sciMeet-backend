@@ -1,4 +1,4 @@
-import { SocketType } from "../socketServer.js";
+import { SocketType } from "../../socketServer.js";
 
 export const roomSignalingDataHandler = (socket: SocketType, data: any) => {
     const { connUserSocketId, signal } = data;

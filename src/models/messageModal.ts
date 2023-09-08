@@ -12,6 +12,10 @@ const messageSchema = new Schema({
     },
     date: { type: Date },
     type: { type: String },
+    readBy: {
+        type: [Schema.Types.ObjectId],
+        default: [],
+    },
 });
 
 export default mongoose.model("Message", messageSchema);

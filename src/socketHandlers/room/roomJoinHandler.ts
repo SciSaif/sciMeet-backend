@@ -1,6 +1,6 @@
-import { getActiveRoom, joinActiveRoom } from "../serverStore.js";
-import { SocketType } from "../socketServer.js";
-import { updateRooms } from "./updates/rooms.js";
+import { getActiveRoom, joinActiveRoom } from "../../serverStore.js";
+import { SocketType } from "../../socketServer.js";
+import { updateRooms } from "../updates/rooms.js";
 
 export const roomJoinHandler = (
     socket: SocketType,

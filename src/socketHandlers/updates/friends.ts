@@ -1,9 +1,11 @@
 import User, { UserType } from "../../models/userModal.js";
 import FriendInvitation from "../../models/friendInvitationModal.js";
+import Conversation from "../../models/conversationModal.js";
 import {
     getActiveConnections,
     getSocketServerInstance,
 } from "../../serverStore.js";
+import { Types } from "mongoose";
 
 export const updateFriendsPendingInvitations = async (userId: string) => {
     try {
@@ -32,6 +34,29 @@ export const updateFriendsPendingInvitations = async (userId: string) => {
     }
 };
 
+// const conversationSchema = new Schema({
+//     participants: [
+//         {
+//             type: Schema.Types.ObjectId,
+//             ref: "User",
+//         },
+//     ],
+//     messages: [
+//         {
+//             type: Schema.Types.ObjectId,
+//             ref: "Message",
+//         },
+//     ],
+//     isGroup: {
+//         type: Boolean,
+//         default: false,
+//     },
+//     groupId: {
+//         type: Schema.Types.ObjectId,
+//         ref: "Group",
+//     },
+// });
+
 export const updateFriends = async (userId: string) => {
     try {
         const user = await User.findById(userId, {
@@ -45,26 +70,37 @@ export const updateFriends = async (userId: string) => {
         // find active connections of specific id (online users)
         const receiverList = getActiveConnections(userId);
 
-        if (receiverList.length === 0) return;
+        if (receiverList.length === 0 || !user) return;
 
-        if (user) {
-            const friendsList = user.friends.map((f) => {
-                return {
-                    _id: f._id,
-                    email: f.email,
-                    username: f.username,
-                    avatar: f.avatar,
-                };
+        // get all the conversations where isGroup is false and the participants include this user
+        const conversations = await Conversation.find({
+            isGroup: false,
+            participants: { $in: [userId] },
+        });
+
+        const friendsList = user.friends.map((f) => {
+            // get the conversation_id of the conversation where this user is in
+            const conversation = conversations.find((c) => {
+                // @ts-ignore
+                return c.participants.includes(f._id);
             });
 
-            // get io server instance
-            const io = getSocketServerInstance();
-            receiverList.forEach((receiverId) => {
-                io.to(receiverId).emit("friends-list", {
-                    friends: friendsList ? friendsList : [],
-                });
+            return {
+                _id: f._id,
+                email: f.email,
+                username: f.username,
+                avatar: f.avatar,
+                conversationId: conversation ? conversation._id : null,
+            };
+        });
+
+        // get io server instance
+        const io = getSocketServerInstance();
+        receiverList.forEach((receiverId) => {
+            io.to(receiverId).emit("friends-list", {
+                friends: friendsList ? friendsList : [],
             });
-        }
+        });
     } catch (err) {
         console.log(err);
     }

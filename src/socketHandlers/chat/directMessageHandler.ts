@@ -1,12 +1,12 @@
-import { SocketType } from "../socketServer.js";
-import Message from "../models/messageModal.js";
-import Conversation from "../models/conversationModal.js";
-import { updateChatHistory } from "./updates/chat.js";
+import { SocketType } from "../../socketServer.js";
+import Message from "../../models/messageModal.js";
+import Conversation from "../../models/conversationModal.js";
+import { updateChatHistory } from ".././updates/chat.js";
 
 export const directMessageHandler = async (socket: SocketType, data: any) => {
     try {
         const user = socket.data.user;
-        const { receiverUserId, content } = data;
+        const { friend_id, content } = data;
 
         // create a new message
         const message = await Message.create({
@@ -18,7 +18,7 @@ export const directMessageHandler = async (socket: SocketType, data: any) => {
 
         // find if conversation exists with this two users - if not create new
         const conversation = await Conversation.findOne({
-            participants: { $all: [user?._id, receiverUserId] },
+            participants: { $all: [user?._id, friend_id] },
         });
 
         if (conversation) {
@@ -31,7 +31,7 @@ export const directMessageHandler = async (socket: SocketType, data: any) => {
         } else {
             // create new conversation
             const newConversation = await Conversation.create({
-                participants: [user?._id, receiverUserId],
+                participants: [user?._id, friend_id],
                 messages: [message._id],
             });
 

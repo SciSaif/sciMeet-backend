@@ -1,6 +1,6 @@
 import { getActiveRooms, removeConnectedUser } from "../serverStore.js";
 import { SocketType } from "../socketServer.js";
-import { roomLeavehandler } from "./roomLeaveHandler.js";
+import { roomLeavehandler } from "./room/roomLeaveHandler.js";
 
 export const disconnectHandler = (socket: SocketType) => {
     // check if user is in room and remove him from room

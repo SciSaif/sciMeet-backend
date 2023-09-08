@@ -1,6 +1,6 @@
-import { getActiveRoom, leaveActiveRoom } from "../serverStore.js";
-import { SocketType } from "../socketServer.js";
-import { updateRooms } from "./updates/rooms.js";
+import { getActiveRoom, leaveActiveRoom } from "../../serverStore.js";
+import { SocketType } from "../../socketServer.js";
+import { updateRooms } from "../updates/rooms.js";
 
 export const roomLeavehandler = (
     socket: SocketType,
