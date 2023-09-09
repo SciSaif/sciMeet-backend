@@ -17,20 +17,25 @@ import { roomLeavehandler } from "./socketHandlers/room/roomLeaveHandler.js";
 import { roomInitializeConnectionHandler } from "./socketHandlers/room/roomInitializeConnectionHandler.js";
 import { roomSignalingDataHandler } from "./socketHandlers/room/roomSignalingDatahandler.js";
 import { directMessageHandler } from "./socketHandlers/chat/directMessageHandler.js";
+import {
+    TypingStatusProps,
+    updateTypingUsers,
+} from "./socketHandlers/updates/chat.js";
 
 export type ConnUserSocketIdType = {
     connUserSocketId: string;
 };
 
 interface ServerToClientEvents {
-    noArg: () => void;
-    basicEmit: (a: number, b: string, c: Buffer) => void;
-    withAck: (d: string, callback: (e: number) => void) => void;
     "friends-invitations": (a: { pendingInvitations: any }) => void;
     "friends-list": (a: { friends: any }) => void;
     "online-users": (a: { onlineUsers: any }) => void;
     "direct-chat-history": (a: any) => void;
     "direct-message": (a: { conversationId: string; message: any }) => void;
+    "typing-status": (a: {
+        conversationId: string;
+        typingUsers: string[];
+    }) => void;
 
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;
@@ -42,12 +47,14 @@ interface ServerToClientEvents {
 }
 
 interface ClientToServerEvents {
-    hello: () => void;
     "direct-message": (data: any) => void;
     "direct-chat-history": (a: {
         friend_id: string;
         fromMessageId?: string;
     }) => void;
+    "typing-status": (data: TypingStatusProps) => void;
+
+    // --------------------------------------------------------------------------
     "room-create": () => void;
     "join-room": (a: { roomid: string }) => void;
     "leave-room": (a: { roomid: string }) => void;
@@ -119,12 +126,16 @@ export const registerSocketServer = (server: HttpServer) => {
         });
 
         socket.on("direct-chat-history", (data) => {
-            console.log("direct-chat-history", data);
             directChatHistoryHandler(
                 socket,
                 data.friend_id,
                 data.fromMessageId
             );
+        });
+
+        socket.on("typing-status", (data) => {
+            // console.log("typing-status", data);
+            updateTypingUsers(socket, data);
         });
 
         // ----------------------------------------------------------------------------
@@ -160,7 +171,7 @@ export const registerSocketServer = (server: HttpServer) => {
         });
     });
 
-    setInterval(() => {
-        emitOnlineUsers();
-    }, 1000 * 8);
+    // setInterval(() => {
+    //     emitOnlineUsers();
+    // }, 1000 * 8);
 };

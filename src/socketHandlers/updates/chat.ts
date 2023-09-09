@@ -2,11 +2,15 @@ import Conversation from "../../models/conversationModal.js";
 import Message from "../../models/messageModal.js";
 import {
     getActiveConnections,
+    getOnlineUsers,
     getSocketServerInstance,
+    getTypingUsers,
+    setTypingUsers,
 } from "../../serverStore.js";
 
 import settings from "../../config/settings.js";
 import { Types } from "mongoose";
+import { SocketType } from "../../socketServer.js";
 const perPageLimit = settings.perPageLimit;
 const startingPageLimit = settings.startingPageLimit;
 
@@ -103,6 +107,49 @@ export const sendNewMessage = async (
                 conversationId,
                 message,
             });
+        });
+    });
+};
+export interface TypingStatusProps {
+    isTyping: boolean;
+    conversationId: string;
+    participantIds: string[];
+}
+
+export const updateTypingUsers = (
+    socket: SocketType,
+    { conversationId, isTyping, participantIds }: TypingStatusProps
+) => {
+    const user = socket.data.user;
+    if (!user) return;
+    const io = getSocketServerInstance();
+
+    const existingUserIds = getTypingUsers(conversationId);
+    if (isTyping) {
+        setTypingUsers(conversationId, [...existingUserIds, user._id]);
+    } else {
+        setTypingUsers(
+            conversationId,
+            existingUserIds.filter((id) => id !== user._id)
+        );
+    }
+
+    // emit typing status to all participants of the conversation
+    const onlineUsers = getOnlineUsers();
+    // get the participants who are online
+    const onlineParticipants = onlineUsers.filter((onlineUser) => {
+        if (onlineUser.userId === user._id) return false;
+        return participantIds.includes(onlineUser.userId);
+    });
+
+    // emit to all online participants
+    onlineParticipants.forEach((onlineParticipant) => {
+        if (onlineParticipant.userId === user._id) return;
+        io.to(onlineParticipant.socketId).emit("typing-status", {
+            conversationId,
+            typingUsers: getTypingUsers(conversationId).filter(
+                (id) => id !== onlineParticipant.userId
+            ),
         });
     });
 };

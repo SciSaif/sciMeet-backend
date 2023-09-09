@@ -1,4 +1,5 @@
-import { ServerType } from "./socketServer.js";
+import { TypingStatusProps } from "./socketHandlers/updates/chat.js";
+import { ServerType, SocketType } from "./socketServer.js";
 import { v4 as uuid } from "uuid";
 
 const connectedUsers = new Map<string, { userId: string }>();
@@ -130,4 +131,17 @@ export const leaveActiveRoom = (
     }
 
     console.log("new active rooms: ", activeRooms);
+};
+
+// typing status
+// each conversation has a list of userIds of users who are typing
+
+const typingUsers = new Map<string, string[]>();
+
+export const getTypingUsers = (conversationId: string) => {
+    return typingUsers.get(conversationId) || [];
+};
+
+export const setTypingUsers = (conversationId: string, userIds: string[]) => {
+    typingUsers.set(conversationId, userIds);
 };
