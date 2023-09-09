@@ -5,7 +5,7 @@ import { updateChatHistory } from "../updates/chat.js";
 export const directChatHistoryHandler = async (
     socket: SocketType,
     friend_id: string,
-    pageNumber?: number
+    fromMessageId?: string
 ) => {
     try {
         const user = socket.data.user;
@@ -18,7 +18,7 @@ export const directChatHistoryHandler = async (
             updateChatHistory(
                 conversation._id.toString(),
                 socket.id,
-                pageNumber
+                fromMessageId
             );
         }
     } catch (err) {

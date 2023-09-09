@@ -1,16 +1,32 @@
 import Conversation from "../../models/conversationModal.js";
+import Message from "../../models/messageModal.js";
 import {
     getActiveConnections,
     getSocketServerInstance,
 } from "../../serverStore.js";
 
 import settings from "../../config/settings.js";
+import { Types } from "mongoose";
 const perPageLimit = settings.perPageLimit;
+const startingPageLimit = settings.startingPageLimit;
+
+const getMessagesAfterMessageId = (messages: any[], fromMessageId: string) => {
+    const fromIndex = messages.findIndex(
+        (message) => message._id.toString() === fromMessageId
+    );
+
+    if (fromIndex === -1) return [];
+
+    // latest message is at the end of the messages
+    // so get the the messages from $fromIndex to $fromIndex - perPageLimit
+    const start = fromIndex - perPageLimit >= 0 ? fromIndex - perPageLimit : 0;
+    return messages.slice(start, fromIndex);
+};
 
 export const updateChatHistory = async (
     conversationId: string,
     toSpecifiedSocketId: string | null = null,
-    pageNumber?: number
+    fromMessageId?: string
 ) => {
     const conversation = await Conversation.findById(conversationId).populate({
         path: "messages",
@@ -25,13 +41,20 @@ export const updateChatHistory = async (
     if (!conversation) return;
 
     const io = getSocketServerInstance();
+    let messages = conversation.messages;
 
     if (toSpecifiedSocketId) {
+        if (fromMessageId) {
+            // load the next $perPageLimit messages starting from the $fromMessageId
+            messages = getMessagesAfterMessageId(messages, fromMessageId);
+        } else messages = messages.slice(-startingPageLimit);
+
         // initial update of chat history, when user opens chat window, we get the history of messages
         return io.to(toSpecifiedSocketId).emit("direct-chat-history", {
             _id: conversation._id,
-            messages: conversation.messages,
+            messages,
             participants: conversation.participants,
+            append: fromMessageId ? true : false,
         });
     }
 
@@ -47,8 +70,38 @@ export const updateChatHistory = async (
         activeConnections.forEach((socketId) => {
             io.to(socketId).emit("direct-chat-history", {
                 _id: conversation._id,
-                messages: conversation.messages,
+                messages: messages.slice(-startingPageLimit),
                 participants: conversation.participants,
+            });
+        });
+    });
+};
+
+export const sendNewMessage = async (
+    participants: Types.ObjectId[],
+    messageId: string,
+    conversationId: string
+) => {
+    const io = getSocketServerInstance();
+
+    const message = await Message.findById(messageId).populate({
+        path: "author",
+        model: "User",
+        select: "username _id avatar",
+    });
+
+    if (!message) return;
+
+    participants.forEach((userId) => {
+        const activeConnections = getActiveConnections(userId.toString());
+
+        if (activeConnections.length === 0) {
+            return;
+        }
+        activeConnections.forEach((socketId) => {
+            io.to(socketId).emit("direct-message", {
+                conversationId,
+                message,
             });
         });
     });

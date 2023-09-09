@@ -30,6 +30,9 @@ interface ServerToClientEvents {
     "friends-list": (a: { friends: any }) => void;
     "online-users": (a: { onlineUsers: any }) => void;
     "direct-chat-history": (a: any) => void;
+    "direct-message": (a: { conversationId: string; message: any }) => void;
+
+    // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;
     "active-rooms": (a: { activeRooms: ActiveRoom[] }) => void;
     "conn-prepare": (a: ConnUserSocketIdType) => void;
@@ -43,7 +46,7 @@ interface ClientToServerEvents {
     "direct-message": (data: any) => void;
     "direct-chat-history": (a: {
         friend_id: string;
-        pageNumber?: number;
+        fromMessageId?: string;
     }) => void;
     "room-create": () => void;
     "join-room": (a: { roomid: string }) => void;
@@ -117,7 +120,11 @@ export const registerSocketServer = (server: HttpServer) => {
 
         socket.on("direct-chat-history", (data) => {
             console.log("direct-chat-history", data);
-            directChatHistoryHandler(socket, data.friend_id, data.pageNumber);
+            directChatHistoryHandler(
+                socket,
+                data.friend_id,
+                data.fromMessageId
+            );
         });
 
         // ----------------------------------------------------------------------------

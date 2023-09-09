@@ -16,6 +16,10 @@ const messageSchema = new Schema({
         type: [Schema.Types.ObjectId],
         default: [],
     },
+    firstMessage: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 export default mongoose.model("Message", messageSchema);

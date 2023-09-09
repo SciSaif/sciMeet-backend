@@ -78,21 +78,31 @@ export const updateFriends = async (userId: string) => {
             participants: { $in: [userId] },
         });
 
-        const friendsList = user.friends.map((f) => {
-            // get the conversation_id of the conversation where this user is in
-            const conversation = conversations.find((c) => {
-                // @ts-ignore
-                return c.participants.includes(f._id);
-            });
+        const friendsList: any = [];
 
-            return {
+        for (const f of user.friends) {
+            // get the conversation_id of the conversation where this user is in
+            let conversation = conversations.find((c) =>
+                // @ts-ignore
+                c.participants.includes(f._id)
+            );
+
+            if (!conversation) {
+                // create a new conversation
+                conversation = await Conversation.create({
+                    participants: [userId, f._id],
+                    messages: [],
+                });
+            }
+
+            friendsList.push({
                 _id: f._id,
                 email: f.email,
                 username: f.username,
                 avatar: f.avatar,
-                conversationId: conversation ? conversation._id : null,
-            };
-        });
+                conversationId: conversation._id,
+            });
+        }
 
         // get io server instance
         const io = getSocketServerInstance();
