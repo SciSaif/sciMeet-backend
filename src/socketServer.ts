@@ -179,7 +179,7 @@ export const registerSocketServer = (server: HttpServer) => {
         });
     });
 
-    // setInterval(() => {
-    //     emitOnlineUsers();
-    // }, 1000 * 8);
+    setInterval(() => {
+        emitOnlineUsers();
+    }, 1000 * 8);
 };
