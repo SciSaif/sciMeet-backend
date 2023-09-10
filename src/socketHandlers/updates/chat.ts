@@ -110,6 +110,95 @@ export const sendNewMessage = async (
         });
     });
 };
+
+// const messageSchema = new Schema({
+//     author: {
+//         type: Schema.Types.ObjectId,
+//         ref: "User",
+//     },
+//     content: {
+//         type: String,
+//     },
+//     date: { type: Date },
+//     type: { type: String },
+//     seenBy: {
+//         type: [
+//             {
+//                 userId: {
+//                     type: Schema.Types.ObjectId,
+//                     ref: "User",
+//                 },
+//                 date: { type: Date },
+//             },
+//         ],
+//         default: [],
+//     },
+//     firstMessage: {
+//         type: Boolean,
+//         default: false,
+//     },
+// });
+
+export const updateLastSeen = async (
+    socket: SocketType,
+    conversationId: string
+) => {
+    const user = socket.data.user;
+    if (!user) return;
+    // populate the messages field
+    const conversation: any = await Conversation.findById(
+        conversationId
+    ).populate({
+        path: "messages",
+        model: "Message",
+    });
+
+    if (!conversation) return;
+
+    let messages = conversation.messages;
+
+    // add user._id to all the messages starting from the last message till you find a message that is already sseen by current user
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const seenBy = messages[i].seenBy;
+        if (messages[i].author.toString() === user._id) {
+            continue;
+        }
+        if (
+            seenBy.find(
+                (d: { userId: string; date: string }) =>
+                    d.userId.toString() === user._id
+            )
+        ) {
+            console.log("breaking", seenBy, user._id);
+            break;
+        }
+
+        // update the Message
+        await Message.findByIdAndUpdate(messages[i]._id, {
+            $push: {
+                seenBy: { userId: user._id, date: new Date() },
+            },
+        });
+    }
+
+    // emit to all active participants of the conversation
+    const io = getSocketServerInstance();
+    const onlineUsers = getOnlineUsers();
+    const allParticipants = conversation.participants;
+    // get the participants who are online
+    const onlineParticipants = onlineUsers.filter((onlineUser) => {
+        return allParticipants.includes(onlineUser.userId);
+    });
+
+    // emit to all online participants
+    onlineParticipants.forEach((onlineParticipant) => {
+        io.to(onlineParticipant.socketId).emit("seen-messages", {
+            conversationId,
+            userId: user._id,
+        });
+    });
+};
+
 export interface TypingStatusProps {
     isTyping: boolean;
     conversationId: string;

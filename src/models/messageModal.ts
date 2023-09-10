@@ -12,8 +12,16 @@ const messageSchema = new Schema({
     },
     date: { type: Date },
     type: { type: String },
-    readBy: {
-        type: [Schema.Types.ObjectId],
+    seenBy: {
+        type: [
+            {
+                userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                date: { type: Date },
+            },
+        ],
         default: [],
     },
     firstMessage: {

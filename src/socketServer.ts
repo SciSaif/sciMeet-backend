@@ -19,6 +19,7 @@ import { roomSignalingDataHandler } from "./socketHandlers/room/roomSignalingDat
 import { directMessageHandler } from "./socketHandlers/chat/directMessageHandler.js";
 import {
     TypingStatusProps,
+    updateLastSeen,
     updateTypingUsers,
 } from "./socketHandlers/updates/chat.js";
 
@@ -36,6 +37,7 @@ interface ServerToClientEvents {
         conversationId: string;
         typingUsers: string[];
     }) => void;
+    "seen-messages": (a: { conversationId: string; userId: string }) => void;
 
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;
@@ -53,6 +55,7 @@ interface ClientToServerEvents {
         fromMessageId?: string;
     }) => void;
     "typing-status": (data: TypingStatusProps) => void;
+    "seen-messages": (data: { conversationId: string }) => void;
 
     // --------------------------------------------------------------------------
     "room-create": () => void;
@@ -136,6 +139,11 @@ export const registerSocketServer = (server: HttpServer) => {
         socket.on("typing-status", (data) => {
             // console.log("typing-status", data);
             updateTypingUsers(socket, data);
+        });
+
+        socket.on("seen-messages", (data) => {
+            console.log("seen-messages", data);
+            updateLastSeen(socket, data.conversationId);
         });
 
         // ----------------------------------------------------------------------------
