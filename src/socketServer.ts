@@ -38,6 +38,7 @@ interface ServerToClientEvents {
         typingUsers: string[];
     }) => void;
     "seen-messages": (a: { conversationId: string; userId: string }) => void;
+    conversations: (a: any) => void;
 
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;

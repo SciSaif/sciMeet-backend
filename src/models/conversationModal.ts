@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { InferSchemaType } from "mongoose";
 
 const Schema = mongoose.Schema;
 
@@ -24,5 +24,9 @@ const conversationSchema = new Schema({
         ref: "Group",
     },
 });
+
+export type TConversation = InferSchemaType<typeof conversationSchema> & {
+    _id: string;
+};
 
 export default mongoose.model("Conversation", conversationSchema);

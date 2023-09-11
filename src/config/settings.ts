@@ -1,4 +1,4 @@
 export default {
-    perPageLimit: 10,
+    perPageLimit: 20,
     startingPageLimit: 30,
 };

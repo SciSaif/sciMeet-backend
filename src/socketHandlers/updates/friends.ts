@@ -1,6 +1,6 @@
 import User, { UserType } from "../../models/userModal.js";
 import FriendInvitation from "../../models/friendInvitationModal.js";
-import Conversation from "../../models/conversationModal.js";
+import Conversation, { TConversation } from "../../models/conversationModal.js";
 import {
     getActiveConnections,
     getSocketServerInstance,
@@ -19,8 +19,6 @@ export const updateFriendsPendingInvitations = async (userId: string) => {
         }).populate("senderId", "_id username email avatar");
 
         const io = getSocketServerInstance();
-
-        console.log("pendingInvitations", pendingInvitations);
 
         receiverList.forEach((receiverSocketId) => {
             io.to(receiverSocketId).emit("friends-invitations", {
@@ -57,7 +55,7 @@ export const updateFriendsPendingInvitations = async (userId: string) => {
 //     },
 // });
 
-export const updateFriends = async (userId: string) => {
+export const updateFriends = async (userId: string, conversations?: any) => {
     try {
         const user = await User.findById(userId, {
             _id: 1,
@@ -72,17 +70,18 @@ export const updateFriends = async (userId: string) => {
 
         if (receiverList.length === 0 || !user) return;
 
-        // get all the conversations where isGroup is false and the participants include this user
-        const conversations = await Conversation.find({
-            isGroup: false,
-            participants: { $in: [userId] },
-        });
-
+        if (!conversations) {
+            // get all the conversations where isGroup is false and the participants include this user
+            conversations = await Conversation.find({
+                isGroup: false,
+                participants: { $in: [userId] },
+            }).select("-messages");
+        }
         const friendsList: any = [];
 
         for (const f of user.friends) {
             // get the conversation_id of the conversation where this user is in
-            let conversation = conversations.find((c) =>
+            let conversation = conversations.find((c: any) =>
                 // @ts-ignore
                 c.participants.includes(f._id)
             );

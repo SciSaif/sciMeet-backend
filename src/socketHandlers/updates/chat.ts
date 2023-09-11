@@ -139,6 +139,23 @@ export const sendNewMessage = async (
 //     },
 // });
 
+// send all the conversations without the messages to newly connected user
+export const sendConversations = async (
+    socket: SocketType,
+    conversations: any
+) => {
+    const user = socket.data.user;
+    if (!user) return;
+
+    const io = getSocketServerInstance();
+
+    // find all active connections of specific userId
+    const receiverList = getActiveConnections(user._id);
+    receiverList.forEach((receiverSocketId) => {
+        io.to(receiverSocketId).emit("conversations", conversations);
+    });
+};
+
 export const updateLastSeen = async (
     socket: SocketType,
     conversationId: string
