@@ -104,6 +104,8 @@ export const registerSocketServer = (server: HttpServer) => {
             // allowedHeaders: ["my-custom-header"],
             credentials: true,
         },
+        // allow max 10mb file
+        maxHttpBufferSize: 1e7,
     });
 
     setSocketServerInstance(io);

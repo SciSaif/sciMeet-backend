@@ -63,7 +63,7 @@ export const updateChatHistory = async (
             }
         }
 
-        // initial update of chat history, when user opens chat window, we get the history of messages
+        // initial update of chat history, when user opens chat window, we get the history of messages or fetching more messages
         return io.to(toSpecifiedSocketId).emit("direct-chat-history", {
             _id: conversation._id,
             messages,

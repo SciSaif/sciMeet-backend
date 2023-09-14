@@ -47,6 +47,7 @@ export const directMessageHandler = async (
             date: new Date(),
             type: "DIRECT",
             file: fullPath,
+            fileName: fn,
             firstMessage: conversation?.messages.length === 0 ? true : false,
         });
 
