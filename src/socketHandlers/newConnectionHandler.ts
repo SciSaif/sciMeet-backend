@@ -10,6 +10,7 @@ import { sendConversations } from "./updates/chat.js";
 
 import settings from "../config/settings.js";
 import { isMessageSeen } from "../utils/chatUtils.js";
+import { getSignedUrl } from "../utils/s3Functions.js";
 const startingPageLimit = settings.startingPageLimit;
 
 export const newConnectionHandler = async (
@@ -55,6 +56,11 @@ export const newConnectionHandler = async (
                 continue;
             } else if (count > startingPageLimit) {
                 conversation.messages = messages.slice(-count);
+                for (let i = 0; i < messages.length; i++) {
+                    if (messages[i].file) {
+                        messages[i].file = await getSignedUrl(messages[i].file);
+                    }
+                }
                 break;
             } else {
                 count++;

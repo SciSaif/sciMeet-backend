@@ -10,6 +10,9 @@ const messageSchema = new Schema({
     content: {
         type: String,
     },
+    file: {
+        type: String,
+    },
     date: { type: Date },
     type: { type: String },
     seenBy: {

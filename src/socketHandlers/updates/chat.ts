@@ -11,6 +11,7 @@ import {
 import settings from "../../config/settings.js";
 import { Types } from "mongoose";
 import { SocketType } from "../../socketServer.js";
+import { getSignedUrl } from "../../utils/s3Functions.js";
 const perPageLimit = settings.perPageLimit;
 const startingPageLimit = settings.startingPageLimit;
 
@@ -32,7 +33,9 @@ export const updateChatHistory = async (
     toSpecifiedSocketId: string | null = null,
     fromMessageId?: string
 ) => {
-    const conversation = await Conversation.findById(conversationId).populate({
+    const conversation: any = await Conversation.findById(
+        conversationId
+    ).populate({
         path: "messages",
         model: "Message",
         populate: {
@@ -53,6 +56,13 @@ export const updateChatHistory = async (
             messages = getMessagesAfterMessageId(messages, fromMessageId);
         } else messages = messages.slice(-startingPageLimit);
 
+        // for each message, if file exists, get signed url of the file
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].file) {
+                messages[i].file = await getSignedUrl(messages[i].file);
+            }
+        }
+
         // initial update of chat history, when user opens chat window, we get the history of messages
         return io.to(toSpecifiedSocketId).emit("direct-chat-history", {
             _id: conversation._id,
@@ -62,10 +72,17 @@ export const updateChatHistory = async (
         });
     }
 
+    // for each message, if file exists, get signed url of the file
+    for (let i = 0; i < messages.length; i++) {
+        if (messages[i].file) {
+            messages[i].file = await getSignedUrl(messages[i].file);
+        }
+    }
+
     // check if users of this conversation are online
     // if yes emit to them update of messages
 
-    conversation.participants.forEach((userId) => {
+    conversation.participants.forEach((userId: string) => {
         const activeConnections = getActiveConnections(userId.toString());
 
         if (activeConnections.length === 0) {
@@ -95,6 +112,11 @@ export const sendNewMessage = async (
     });
 
     if (!message) return;
+
+    // if message contains file then get signed url
+    if (message.file) {
+        message.file = await getSignedUrl(message.file);
+    }
 
     participants.forEach((userId) => {
         const activeConnections = getActiveConnections(userId.toString());

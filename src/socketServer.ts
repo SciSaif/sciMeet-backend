@@ -16,7 +16,10 @@ import { roomJoinHandler } from "./socketHandlers/room/roomJoinHandler.js";
 import { roomLeavehandler } from "./socketHandlers/room/roomLeaveHandler.js";
 import { roomInitializeConnectionHandler } from "./socketHandlers/room/roomInitializeConnectionHandler.js";
 import { roomSignalingDataHandler } from "./socketHandlers/room/roomSignalingDatahandler.js";
-import { directMessageHandler } from "./socketHandlers/chat/directMessageHandler.js";
+import {
+    MessageType,
+    directMessageHandler,
+} from "./socketHandlers/chat/directMessageHandler.js";
 import {
     TypingStatusProps,
     updateLastSeen,
@@ -50,7 +53,7 @@ interface ServerToClientEvents {
 }
 
 interface ClientToServerEvents {
-    "direct-message": (data: any) => void;
+    "direct-message": (data: MessageType) => void;
     "direct-chat-history": (a: {
         friend_id: string;
         fromMessageId?: string;
@@ -126,6 +129,7 @@ export const registerSocketServer = (server: HttpServer) => {
         // chat related evetns
 
         socket.on("direct-message", (data) => {
+            console.log(data);
             directMessageHandler(socket, data);
         });
 
