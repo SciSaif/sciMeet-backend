@@ -10,6 +10,7 @@ export interface MessageType {
     // file?: string | ArrayBuffer | null;
     file?: any;
     fileName?: string;
+    fileType?: string;
 }
 
 export const directMessageHandler = async (
@@ -18,7 +19,7 @@ export const directMessageHandler = async (
 ) => {
     try {
         const user = socket.data.user;
-        const { friend_id, content, file, fileName: fn } = data;
+        const { friend_id, content, file, fileName: fn, fileType } = data;
 
         // find if conversation exists with this two users - if not create new
         const conversation = await Conversation.findOne({
@@ -27,8 +28,6 @@ export const directMessageHandler = async (
 
         if (!conversation) return;
         // if type of File is not ArrayBuffer then return
-        console.log(typeof file);
-        console.log("reached");
         let fullPath = "";
         // if file exists, upload to s3
         if (file && fn) {
@@ -48,6 +47,7 @@ export const directMessageHandler = async (
             type: "DIRECT",
             file: fullPath,
             fileName: fn,
+            fileType,
             firstMessage: conversation?.messages.length === 0 ? true : false,
         });
 

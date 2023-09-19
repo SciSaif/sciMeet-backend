@@ -133,34 +133,6 @@ export const sendNewMessage = async (
     });
 };
 
-// const messageSchema = new Schema({
-//     author: {
-//         type: Schema.Types.ObjectId,
-//         ref: "User",
-//     },
-//     content: {
-//         type: String,
-//     },
-//     date: { type: Date },
-//     type: { type: String },
-//     seenBy: {
-//         type: [
-//             {
-//                 userId: {
-//                     type: Schema.Types.ObjectId,
-//                     ref: "User",
-//                 },
-//                 date: { type: Date },
-//             },
-//         ],
-//         default: [],
-//     },
-//     firstMessage: {
-//         type: Boolean,
-//         default: false,
-//     },
-// });
-
 // send all the conversations without the messages to newly connected user
 export const sendConversations = async (
     socket: SocketType,

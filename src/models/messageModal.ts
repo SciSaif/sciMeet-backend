@@ -16,6 +16,9 @@ const messageSchema = new Schema({
     fileName: {
         type: String,
     },
+    fileType: {
+        type: String,
+    },
     date: { type: Date },
     type: { type: String },
     seenBy: {
