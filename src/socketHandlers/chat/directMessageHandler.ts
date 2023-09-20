@@ -19,7 +19,8 @@ export const directMessageHandler = async (
 ) => {
     try {
         const user = socket.data.user;
-        const { friend_id, content, file, fileName: fn, fileType } = data;
+        if (!user) return;
+        let { friend_id, content, file, fileName: fn, fileType } = data;
 
         // find if conversation exists with this two users - if not create new
         const conversation = await Conversation.findOne({
@@ -27,6 +28,12 @@ export const directMessageHandler = async (
         });
 
         if (!conversation) return;
+        if (fileType === "audio") {
+            // generate a fileName
+            // get the part of the user email before the @
+            let email = user.email.split("@")[0];
+            fn = email + ".webm";
+        }
         // if type of File is not ArrayBuffer then return
         let fullPath = "";
         // if file exists, upload to s3
@@ -46,7 +53,7 @@ export const directMessageHandler = async (
             date: new Date(),
             type: "DIRECT",
             file: fullPath,
-            fileName: fn,
+            fileName: fn ? `${new Date().toISOString()}_${fn}` : undefined,
             fileType,
             firstMessage: conversation?.messages.length === 0 ? true : false,
         });

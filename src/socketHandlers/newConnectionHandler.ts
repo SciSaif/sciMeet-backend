@@ -55,21 +55,24 @@ export const newConnectionHandler = async (
                 count++;
                 continue;
             } else if (count > startingPageLimit) {
-                conversation.messages = messages.slice(-count);
-                for (let i = 0; i < messages.length; i++) {
-                    if (messages[i].file) {
-                        messages[i].file = await getSignedUrl(messages[i].file);
-                    }
-                }
                 break;
             } else {
                 count++;
             }
         }
+
+        conversation.messages = messages.slice(-count);
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].file) {
+                messages[i].file = await getSignedUrl(messages[i].file);
+                console.log(messages[i].file);
+            }
+        }
+
         count = 0;
     }
 
-    // send all the conversations without the messages
+    // send all the conversations to newly connected user
     sendConversations(socket, conversations);
 
     setTimeout(() => {

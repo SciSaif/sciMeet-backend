@@ -133,7 +133,7 @@ export const sendNewMessage = async (
     });
 };
 
-// send all the conversations without the messages to newly connected user
+// send all the conversations to newly connected user
 export const sendConversations = async (
     socket: SocketType,
     conversations: any

@@ -16,29 +16,19 @@ export async function putObject(
     data: ArrayBuffer,
     bucket = bucketName
 ) {
+    let contentType;
+    if (fullPath.endsWith(".webm")) {
+        contentType = "audio/webm";
+    }
+
+    console.log("size of file", data.byteLength);
     try {
-        // console.log(bucket + fullPath);
-
-        // Determine the image format
-        // let ContentType: string;
-        // if (data.startsWith("data:image/jpeg")) {
-        //     ContentType = "image/jpeg";
-        // } else if (data.startsWith("data:image/png")) {
-        //     ContentType = "image/png";
-        // }
-        // // data:application/pdf;base64
-        // else if (data.startsWith("data:application/pdf")) {
-        //     ContentType = "application/pdf";
-        // } else {
-        //     throw new Error("Unsupported file format");
-        // }
-
         const response = await s3
             .putObject({
                 Bucket: bucket,
                 Key: fullPath,
                 Body: data,
-                // ContentType,
+                ContentType: contentType,
                 // ContentEncoding: "base64",
             })
             .promise();
