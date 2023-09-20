@@ -180,7 +180,6 @@ export const updateLastSeen = async (
                     d.userId.toString() === user._id
             )
         ) {
-            console.log("breaking", seenBy, user._id);
             break;
         }
 

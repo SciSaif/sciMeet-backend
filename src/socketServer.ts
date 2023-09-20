@@ -149,7 +149,7 @@ export const registerSocketServer = (server: HttpServer) => {
         });
 
         socket.on("seen-messages", (data) => {
-            console.log("seen-messages", data);
+            // console.log("seen-messages", data);
             updateLastSeen(socket, data.conversationId);
         });
 
@@ -161,7 +161,7 @@ export const registerSocketServer = (server: HttpServer) => {
         });
 
         socket.on("join-room", (data) => {
-            console.log("join room");
+            // console.log("join room");
             roomJoinHandler(socket, data);
         });
 

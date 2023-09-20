@@ -65,7 +65,7 @@ export const newConnectionHandler = async (
         for (let i = 0; i < messages.length; i++) {
             if (messages[i].file) {
                 messages[i].file = await getSignedUrl(messages[i].file);
-                console.log(messages[i].file);
+                // console.log(messages[i].file);
             }
         }
 
