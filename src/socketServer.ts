@@ -42,6 +42,7 @@ interface ServerToClientEvents {
     }) => void;
     "seen-messages": (a: { conversationId: string; userId: string }) => void;
     conversations: (a: any) => void;
+    "groups-list": (a: any) => void;
 
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;

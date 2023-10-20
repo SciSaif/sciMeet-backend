@@ -11,6 +11,7 @@ import { sendConversations } from "./updates/chat.js";
 import settings from "../config/settings.js";
 import { isMessageSeen } from "../utils/chatUtils.js";
 import { getSignedUrl } from "../utils/s3Functions.js";
+import { updateGroups } from "./updates/group.js";
 const startingPageLimit = settings.startingPageLimit;
 
 export const newConnectionHandler = async (
@@ -25,7 +26,6 @@ export const newConnectionHandler = async (
     updateFriendsPendingInvitations(user._id);
 
     const conversations: any = await Conversation.find({
-        isGroup: false,
         participants: { $in: [user._id] },
     }).populate({
         path: "messages",
@@ -41,6 +41,9 @@ export const newConnectionHandler = async (
 
     // update friends list
     updateFriends(user._id, conversations);
+
+    // update groups list
+    updateGroups(user._id);
 
     // only send the upto latest $startingPageLimit messages or all the unread messages
     for (const conversation of conversations) {
