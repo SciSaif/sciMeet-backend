@@ -269,6 +269,8 @@ export const deleteGroup = asyncRequestHandler(null, async (req, res) => {
         groupId,
     });
 
+    // remove files from s3 @TODO
+
     const participants = conversation.participants;
 
     // send group deleted event to all participants
