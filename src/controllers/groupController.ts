@@ -88,14 +88,21 @@ import {
 // const groupSchema = new Schema({
 //     creator_id: {
 //         type: Schema.Types.ObjectId,
+//         required: true,
 //     },
-//     conversationId: {
+//     conversation_id: {
 //         type: Schema.Types.ObjectId,
 //         ref: "Conversation",
 //     },
-//     groupName: {
+//     group_name: {
 //         type: String,
 //         required: true,
+//     },
+//     description: {
+//         type: String,
+//     },
+//     avatar: {
+//         type: String,
 //     },
 // });
 
@@ -161,6 +168,70 @@ export const createGroup = asyncRequestHandler(
         });
 
         return res.status(201).json({ toast: "Group created successfully!" });
+    }
+);
+
+// @DESC update a group
+// @ROUTE PUT /groups
+// @ACCESS Private
+export const updateGroup = asyncRequestHandler(
+    z.object({
+        group_id: z.string(),
+        group_name: z.string().min(1).optional(),
+        description: z.string().min(1).optional(),
+    }),
+    async (req, res) => {
+        let { group_name, description, group_id } = req.body;
+        const user = req.user;
+
+        // check if group exists
+        const group = await Group.findById(group_id);
+
+        if (!group) {
+            return res.status(400).json({ toast: "Group does not exist" });
+        }
+
+        // check if current user is the creator of the group
+        if (group.creator_id.toString() !== user._id) {
+            return res.status(401).json({ toast: "You are not the creator" });
+        }
+
+        const updatedGroup = await Group.findByIdAndUpdate(
+            { _id: group_id },
+            {
+                group_name,
+                description,
+            },
+            { new: true }
+        );
+        // get the conversation
+        const conversation = await Conversation.findOne({
+            groupId: group_id,
+        });
+
+        if (!conversation) {
+            return res
+                .status(400)
+                .json({ toast: "Conversation does not exist" });
+        }
+
+        const participants = conversation.participants;
+        const io = getSocketServerInstance();
+
+        // find all active connections of specific userId
+        const onlineUsers = getOnlineUsers();
+        // get all online participants
+        const receiverList = onlineUsers.filter((onlineUser) =>
+            participants.includes(onlineUser.userId as any)
+        );
+
+        receiverList.forEach((receiverSocketId) => {
+            io.to(receiverSocketId.socketId).emit("group-updated", {
+                group: updatedGroup,
+            });
+        });
+
+        return res.status(200).json({ toast: "Group updated successfully!" });
     }
 );
 
