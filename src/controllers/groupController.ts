@@ -101,15 +101,17 @@ export const createGroup = asyncRequestHandler(
     z.object({
         group_name: z.string().min(1),
         participants: z.array(z.string()),
+        avatar: z.string(),
     }),
     async (req, res) => {
-        let { group_name, participants } = req.body;
+        let { group_name, participants, avatar } = req.body;
         const user = req.user;
 
         // create a group with the given groupName
         const group = await Group.create({
             group_name,
             creator_id: user._id,
+            avatar,
         });
 
         // add current userid to participants

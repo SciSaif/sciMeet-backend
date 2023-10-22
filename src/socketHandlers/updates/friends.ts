@@ -99,7 +99,7 @@ export const updateFriends = async (userId: string, conversations?: any) => {
                 email: f.email,
                 username: f.username,
                 avatar: f.avatar,
-                conversationId: conversation._id,
+                conversation_id: conversation._id,
             });
         }
 

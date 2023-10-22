@@ -138,10 +138,10 @@ export const leaveActiveRoom = (
 
 const typingUsers = new Map<string, string[]>();
 
-export const getTypingUsers = (conversationId: string) => {
-    return typingUsers.get(conversationId) || [];
+export const getTypingUsers = (conversation_id: string) => {
+    return typingUsers.get(conversation_id) || [];
 };
 
-export const setTypingUsers = (conversationId: string, userIds: string[]) => {
-    typingUsers.set(conversationId, userIds);
+export const setTypingUsers = (conversation_id: string, userIds: string[]) => {
+    typingUsers.set(conversation_id, userIds);
 };

@@ -4,15 +4,11 @@ import { updateChatHistory } from "../updates/chat.js";
 
 export const directChatHistoryHandler = async (
     socket: SocketType,
-    friend_id: string,
+    conversation_id: string,
     fromMessageId?: string
 ) => {
     try {
-        const user = socket.data.user;
-
-        const conversation = await Conversation.findOne({
-            participants: { $all: [user?._id, friend_id] },
-        });
+        const conversation = await Conversation.findById(conversation_id);
 
         if (conversation) {
             updateChatHistory(

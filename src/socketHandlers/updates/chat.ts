@@ -29,12 +29,12 @@ const getMessagesAfterMessageId = (messages: any[], fromMessageId: string) => {
 };
 
 export const updateChatHistory = async (
-    conversationId: string,
+    conversation_id: string,
     toSpecifiedSocketId: string | null = null,
     fromMessageId?: string
 ) => {
     const conversation: any = await Conversation.findById(
-        conversationId
+        conversation_id
     ).populate({
         path: "messages",
         model: "Message",
@@ -101,7 +101,7 @@ export const updateChatHistory = async (
 export const sendNewMessage = async (
     participants: Types.ObjectId[],
     messageId: string,
-    conversationId: string
+    conversation_id: string
 ) => {
     const io = getSocketServerInstance();
 
@@ -126,7 +126,7 @@ export const sendNewMessage = async (
         }
         activeConnections.forEach((socketId) => {
             io.to(socketId).emit("direct-message", {
-                conversationId,
+                conversation_id,
                 message,
             });
         });
@@ -152,13 +152,13 @@ export const sendConversations = async (
 
 export const updateLastSeen = async (
     socket: SocketType,
-    conversationId: string
+    conversation_id: string
 ) => {
     const user = socket.data.user;
     if (!user) return;
     // populate the messages field
     const conversation: any = await Conversation.findById(
-        conversationId
+        conversation_id
     ).populate({
         path: "messages",
         model: "Message",
@@ -203,7 +203,7 @@ export const updateLastSeen = async (
     // emit to all online participants
     onlineParticipants.forEach((onlineParticipant) => {
         io.to(onlineParticipant.socketId).emit("seen-messages", {
-            conversationId,
+            conversation_id,
             userId: user._id,
         });
     });
@@ -211,24 +211,24 @@ export const updateLastSeen = async (
 
 export interface TypingStatusProps {
     isTyping: boolean;
-    conversationId: string;
+    conversation_id: string;
     participantIds: string[];
 }
 
 export const updateTypingUsers = (
     socket: SocketType,
-    { conversationId, isTyping, participantIds }: TypingStatusProps
+    { conversation_id, isTyping, participantIds }: TypingStatusProps
 ) => {
     const user = socket.data.user;
     if (!user) return;
     const io = getSocketServerInstance();
 
-    const existingUserIds = getTypingUsers(conversationId);
+    const existingUserIds = getTypingUsers(conversation_id);
     if (isTyping) {
-        setTypingUsers(conversationId, [...existingUserIds, user._id]);
+        setTypingUsers(conversation_id, [...existingUserIds, user._id]);
     } else {
         setTypingUsers(
-            conversationId,
+            conversation_id,
             existingUserIds.filter((id) => id !== user._id)
         );
     }
@@ -245,8 +245,8 @@ export const updateTypingUsers = (
     onlineParticipants.forEach((onlineParticipant) => {
         if (onlineParticipant.userId === user._id) return;
         io.to(onlineParticipant.socketId).emit("typing-status", {
-            conversationId,
-            typingUsers: getTypingUsers(conversationId).filter(
+            conversation_id,
+            typingUsers: getTypingUsers(conversation_id).filter(
                 (id) => id !== onlineParticipant.userId
             ),
         });

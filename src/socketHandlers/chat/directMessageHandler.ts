@@ -5,7 +5,7 @@ import { sendNewMessage, updateChatHistory } from ".././updates/chat.js";
 import { putObject } from "../../utils/s3Functions.js";
 
 export interface MessageType {
-    friend_id: string;
+    conversation_id: string;
     content?: string;
     // file?: string | ArrayBuffer | null;
     file?: any;
@@ -20,12 +20,10 @@ export const directMessageHandler = async (
     try {
         const user = socket.data.user;
         if (!user) return;
-        let { friend_id, content, file, fileName: fn, fileType } = data;
+        let { conversation_id, content, file, fileName: fn, fileType } = data;
 
         // find if conversation exists with this two users - if not create new
-        const conversation = await Conversation.findOne({
-            participants: { $all: [user?._id, friend_id] },
-        });
+        const conversation = await Conversation.findById(conversation_id);
 
         if (!conversation) return;
         if (fileType === "audio") {

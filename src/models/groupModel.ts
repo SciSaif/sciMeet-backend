@@ -14,6 +14,9 @@ const groupSchema = new Schema({
         type: String,
         required: true,
     },
+    avatar: {
+        type: String,
+    },
 });
 
 export default mongoose.model("Group", groupSchema);

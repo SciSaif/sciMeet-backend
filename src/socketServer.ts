@@ -35,12 +35,12 @@ interface ServerToClientEvents {
     "friends-list": (a: { friends: any }) => void;
     "online-users": (a: { onlineUsers: any }) => void;
     "direct-chat-history": (a: any) => void;
-    "direct-message": (a: { conversationId: string; message: any }) => void;
+    "direct-message": (a: { conversation_id: string; message: any }) => void;
     "typing-status": (a: {
-        conversationId: string;
+        conversation_id: string;
         typingUsers: string[];
     }) => void;
-    "seen-messages": (a: { conversationId: string; userId: string }) => void;
+    "seen-messages": (a: { conversation_id: string; userId: string }) => void;
     conversations: (a: any) => void;
     "groups-list": (a: any) => void;
 
@@ -56,11 +56,11 @@ interface ServerToClientEvents {
 interface ClientToServerEvents {
     "direct-message": (data: MessageType) => void;
     "direct-chat-history": (a: {
-        friend_id: string;
+        conversation_id: string;
         fromMessageId?: string;
     }) => void;
     "typing-status": (data: TypingStatusProps) => void;
-    "seen-messages": (data: { conversationId: string }) => void;
+    "seen-messages": (data: { conversation_id: string }) => void;
 
     // --------------------------------------------------------------------------
     "room-create": () => void;
@@ -139,7 +139,7 @@ export const registerSocketServer = (server: HttpServer) => {
         socket.on("direct-chat-history", (data) => {
             directChatHistoryHandler(
                 socket,
-                data.friend_id,
+                data.conversation_id,
                 data.fromMessageId
             );
         });
@@ -151,7 +151,7 @@ export const registerSocketServer = (server: HttpServer) => {
 
         socket.on("seen-messages", (data) => {
             // console.log("seen-messages", data);
-            updateLastSeen(socket, data.conversationId);
+            updateLastSeen(socket, data.conversation_id);
         });
 
         // ----------------------------------------------------------------------------
