@@ -43,6 +43,8 @@ interface ServerToClientEvents {
     "seen-messages": (a: { conversation_id: string; userId: string }) => void;
     conversations: (a: any) => void;
     "groups-list": (a: any) => void;
+    "new-group": (a: any) => void;
+    "group-deleted": (a: any) => void;
 
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;
@@ -61,6 +63,8 @@ interface ClientToServerEvents {
     }) => void;
     "typing-status": (data: TypingStatusProps) => void;
     "seen-messages": (data: { conversation_id: string }) => void;
+
+    // --------------------------------------------------------------------------
 
     // --------------------------------------------------------------------------
     "room-create": () => void;
@@ -129,7 +133,10 @@ export const registerSocketServer = (server: HttpServer) => {
         emitOnlineUsers();
 
         // ----------------------------------------------------------------------------
-        // chat related evetns
+        // group related events
+
+        // ----------------------------------------------------------------------------
+        // chat related events
 
         socket.on("direct-message", (data) => {
             console.log(data);

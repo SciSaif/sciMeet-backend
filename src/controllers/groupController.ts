@@ -3,6 +3,11 @@ import asyncRequestHandler from "../utils/asyncRequestHandler.js";
 import User from "../models/userModal.js";
 import Group from "../models/groupModel.js";
 import Conversation from "../models/conversationModal.js";
+import {
+    getActiveConnections,
+    getOnlineUsers,
+    getSocketServerInstance,
+} from "../serverStore.js";
 // for reference:
 // // check if friend that we would like to invite is not current user
 // if (
@@ -127,6 +132,87 @@ export const createGroup = asyncRequestHandler(
         group.conversation_id = conversation._id;
         await group.save();
 
+        const curr_conversation: any = await Conversation.findById(
+            conversation._id
+        ).populate({
+            path: "messages",
+            model: "Message",
+            populate: {
+                path: "author",
+                model: "User",
+                select: "username _id avatar",
+            },
+        });
+
+        const io = getSocketServerInstance();
+
+        // find all active connections of specific userId
+        const onlineUsers = getOnlineUsers();
+        // get all online participants
+        const receiverList = onlineUsers.filter((onlineUser) =>
+            participants.includes(onlineUser.userId)
+        );
+
+        receiverList.forEach((receiverSocketId) => {
+            io.to(receiverSocketId.socketId).emit("new-group", {
+                group,
+                conversation: curr_conversation,
+            });
+        });
+
         return res.status(201).json({ toast: "Group created successfully!" });
     }
 );
+
+// @DESC delete a group
+// @ROUTE DELETE /groups/:groupId
+// @ACCESS Private
+export const deleteGroup = asyncRequestHandler(null, async (req, res) => {
+    const { groupId } = req.params;
+    const user = req.user;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+        return res.status(400).json({ toast: "Group does not exist" });
+    }
+
+    // check if current user is the creator of the group
+    if (group.creator_id.toString() !== user._id) {
+        return res.status(401).json({ toast: "You are not the creator" });
+    }
+
+    // delete group
+    await Group.findByIdAndDelete(groupId);
+
+    // get the conversation
+    const conversation = await Conversation.findOne({
+        groupId,
+    });
+
+    if (!conversation) {
+        return res.status(400).json({ toast: "Conversation does not exist" });
+    }
+
+    // delete conversation
+    await Conversation.findOneAndDelete({
+        groupId,
+    });
+
+    const participants = conversation.participants;
+
+    // send group deleted event to all participants
+    const onlineUsers = getOnlineUsers();
+    const receiverList = onlineUsers.filter((onlineUser) =>
+        participants.includes(onlineUser.userId as any)
+    );
+
+    const io = getSocketServerInstance();
+
+    receiverList.forEach((receiverSocketId) => {
+        io.to(receiverSocketId.socketId).emit("group-deleted", {
+            groupId,
+        });
+    });
+
+    return res.status(200).json({ toast: "Group deleted successfully!" });
+});

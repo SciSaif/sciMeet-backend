@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const groupSchema = new Schema({
     creator_id: {
         type: Schema.Types.ObjectId,
+        required: true,
     },
     conversation_id: {
         type: Schema.Types.ObjectId,
