@@ -7,6 +7,7 @@ export const roomCreateHandler = (
     data: {
         conversation_id: string;
         conversation_participants: string[];
+        isGroup: boolean;
     }
 ) => {
     console.log("handling room create event");

@@ -71,6 +71,7 @@ interface ClientToServerEvents {
     "room-create": (a: {
         conversation_id: string;
         conversation_participants: string[];
+        isGroup: boolean;
     }) => void;
     "join-room": (a: { roomid: string }) => void;
     "leave-room": (a: { roomid: string }) => void;

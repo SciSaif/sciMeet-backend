@@ -16,6 +16,8 @@ export interface ActiveRoom {
     roomid: string;
     conversation_id: string;
     conversation_participants: string[];
+    isGroup: boolean;
+    ignoredBy?: string[];
 }
 
 let activeRooms = <ActiveRoom[]>[];
@@ -68,9 +70,11 @@ export const addNewActiveRoom = (
     {
         conversation_id,
         conversation_participants,
+        isGroup,
     }: {
         conversation_id: string;
         conversation_participants: string[];
+        isGroup: boolean;
     }
 ) => {
     const newActiveRoom = {
@@ -87,6 +91,7 @@ export const addNewActiveRoom = (
         roomid: uuid(),
         conversation_id,
         conversation_participants,
+        isGroup,
     };
 
     activeRooms = [...activeRooms, newActiveRoom];
