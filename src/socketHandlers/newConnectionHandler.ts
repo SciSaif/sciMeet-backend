@@ -1,10 +1,10 @@
-import { addNewConnectedUser } from "../serverStore.js";
+import { addNewConnectedUser, getActiveRoomByUserId } from "../serverStore.js";
 import { ServerType, SocketType } from "../socketServer.js";
 import {
     updateFriends,
     updateFriendsPendingInvitations,
 } from "./updates/friends.js";
-import { updateRooms } from "./updates/rooms.js";
+import { notifyRoomParticipants, updateRooms } from "./updates/rooms.js";
 import Conversation from "../models/conversationModal.js";
 import { sendConversations } from "./updates/chat.js";
 
@@ -79,6 +79,10 @@ export const newConnectionHandler = async (
     sendConversations(socket, conversations);
 
     setTimeout(() => {
-        updateRooms(socket.id);
+        // updateRooms(socket.id);
+        const activeRoom = getActiveRoomByUserId(user._id);
+        if (!activeRoom) return;
+
+        notifyRoomParticipants(activeRoom.roomid, socket.id);
     }, 2000);
 };

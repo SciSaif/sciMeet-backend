@@ -14,6 +14,8 @@ export interface ActiveRoom {
         socketId: string;
     }[];
     roomid: string;
+    conversation_id: string;
+    conversation_participants: string[];
 }
 
 let activeRooms = <ActiveRoom[]>[];
@@ -60,7 +62,17 @@ export const getOnlineUsers = () => {
 };
 
 // rooms
-export const addNewActiveRoom = (userId: string, socketId: string) => {
+export const addNewActiveRoom = (
+    userId: string,
+    socketId: string,
+    {
+        conversation_id,
+        conversation_participants,
+    }: {
+        conversation_id: string;
+        conversation_participants: string[];
+    }
+) => {
     const newActiveRoom = {
         roomCreator: {
             userId,
@@ -73,6 +85,8 @@ export const addNewActiveRoom = (userId: string, socketId: string) => {
             },
         ],
         roomid: uuid(),
+        conversation_id,
+        conversation_participants,
     };
 
     activeRooms = [...activeRooms, newActiveRoom];
@@ -86,6 +100,16 @@ export const getActiveRooms = () => {
 
 export const getActiveRoom = (roomId: string) => {
     const activeRoom = activeRooms.find((room) => room.roomid === roomId);
+
+    if (!activeRoom) return null;
+    return { ...activeRoom };
+};
+
+// get active room whose conversation_participants array contains the userId
+export const getActiveRoomByUserId = (userId: string) => {
+    const activeRoom = activeRooms.find((room) =>
+        room.conversation_participants.includes(userId)
+    );
 
     if (!activeRoom) return null;
     return { ...activeRoom };

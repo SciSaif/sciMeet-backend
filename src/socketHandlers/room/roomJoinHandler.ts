@@ -14,6 +14,10 @@ export const roomJoinHandler = (
     };
 
     const roomDetails = getActiveRoom(roomid);
+    if (!roomDetails) return;
+
+    const allowedParticipants = roomDetails?.conversation_participants;
+    if (!allowedParticipants.includes(participantDetails.userId)) return;
 
     joinActiveRoom(roomid, participantDetails);
 

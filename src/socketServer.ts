@@ -68,7 +68,10 @@ interface ClientToServerEvents {
     // --------------------------------------------------------------------------
 
     // --------------------------------------------------------------------------
-    "room-create": () => void;
+    "room-create": (a: {
+        conversation_id: string;
+        conversation_participants: string[];
+    }) => void;
     "join-room": (a: { roomid: string }) => void;
     "leave-room": (a: { roomid: string }) => void;
     "conn-init": (a: ConnUserSocketIdType) => void;
@@ -165,8 +168,8 @@ export const registerSocketServer = (server: HttpServer) => {
         // ----------------------------------------------------------------------------
         // room related events
 
-        socket.on("room-create", () => {
-            roomCreateHandler(socket);
+        socket.on("room-create", (data) => {
+            roomCreateHandler(socket, data);
         });
 
         socket.on("join-room", (data) => {

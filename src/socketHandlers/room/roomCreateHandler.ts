@@ -1,8 +1,14 @@
-import { addNewActiveRoom } from "../../serverStore.js";
+import { addNewActiveRoom, getActiveRoomByUserId } from "../../serverStore.js";
 import { SocketType } from "../../socketServer.js";
-import { updateRooms } from "../updates/rooms.js";
+import { notifyRoomParticipants, updateRooms } from "../updates/rooms.js";
 
-export const roomCreateHandler = (socket: SocketType) => {
+export const roomCreateHandler = (
+    socket: SocketType,
+    data: {
+        conversation_id: string;
+        conversation_participants: string[];
+    }
+) => {
     console.log("handling room create event");
 
     const socketId = socket.id;
@@ -10,11 +16,13 @@ export const roomCreateHandler = (socket: SocketType) => {
 
     if (!userId) return;
 
-    const roomDetails = addNewActiveRoom(userId, socketId);
+    const roomDetails = addNewActiveRoom(userId, socketId, data);
 
     socket.emit("room-create", {
         roomDetails,
     });
 
-    updateRooms();
+    console.log("new room created: ", roomDetails);
+    // updateRooms();
+    notifyRoomParticipants(roomDetails.roomid);
 };
