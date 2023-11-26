@@ -13,7 +13,10 @@ import {
 import { directChatHistoryHandler } from "./socketHandlers/chat/directChatHistoryHandler.js";
 import { roomCreateHandler } from "./socketHandlers/room/roomCreateHandler.js";
 import { roomJoinHandler } from "./socketHandlers/room/roomJoinHandler.js";
-import { roomLeavehandler } from "./socketHandlers/room/roomLeaveHandler.js";
+import {
+    rejectCallHandler,
+    roomLeavehandler,
+} from "./socketHandlers/room/roomLeaveHandler.js";
 import { roomInitializeConnectionHandler } from "./socketHandlers/room/roomInitializeConnectionHandler.js";
 import { roomSignalingDataHandler } from "./socketHandlers/room/roomSignalingDatahandler.js";
 import {
@@ -28,6 +31,7 @@ import {
 
 export type ConnUserSocketIdType = {
     connUserSocketId: string;
+    isGroup?: boolean;
 };
 
 interface ServerToClientEvents {
@@ -50,6 +54,7 @@ interface ServerToClientEvents {
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;
     "active-rooms": (a: { activeRooms: ActiveRoom[] }) => void;
+    "call-rejected": (a: { roomid: string }) => void;
     "conn-prepare": (a: ConnUserSocketIdType) => void;
     "conn-init": (a: ConnUserSocketIdType) => void;
     "conn-signal": (a: any) => void;
@@ -75,6 +80,7 @@ interface ClientToServerEvents {
     }) => void;
     "join-room": (a: { roomid: string }) => void;
     "leave-room": (a: { roomid: string }) => void;
+    "reject-call": (a: { roomid: string }) => void;
     "conn-init": (a: ConnUserSocketIdType) => void;
     "conn-signal": (a: any) => void;
 }
@@ -181,6 +187,11 @@ export const registerSocketServer = (server: HttpServer) => {
         socket.on("leave-room", (data) => {
             console.log("leave room");
             roomLeavehandler(socket, data);
+        });
+
+        socket.on("reject-call", (data) => {
+            console.log("reject call");
+            rejectCallHandler(socket, data);
         });
 
         socket.on("conn-init", (data) => {

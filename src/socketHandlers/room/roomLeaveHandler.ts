@@ -1,6 +1,10 @@
 import { getActiveRoom, leaveActiveRoom } from "../../serverStore.js";
 import { SocketType } from "../../socketServer.js";
-import { updateRooms } from "../updates/rooms.js";
+import {
+    closeRoom,
+    notifyRoomParticipants,
+    updateRooms,
+} from "../updates/rooms.js";
 
 export const roomLeavehandler = (
     socket: SocketType,
@@ -21,8 +25,36 @@ export const roomLeavehandler = (
                     connUserSocketId: socket.id,
                 });
             });
+        } else {
+            activeRoom.participants.forEach((participant) => {
+                socket.to(participant.socketId).emit("room-participant-left", {
+                    connUserSocketId: socket.id,
+                    isGroup: activeRoom.isGroup,
+                });
+            });
         }
 
         updateRooms();
     }
+};
+
+export const rejectCallHandler = (
+    socket: SocketType,
+    data: { roomid: string }
+) => {
+    const { roomid } = data;
+
+    const activeRoom = getActiveRoom(roomid);
+
+    const socketId = socket.id;
+
+    if (!activeRoom) return;
+
+    // close the room and notify the room creator
+    const creatorSocketId = activeRoom.roomCreator.socketId;
+    closeRoom(roomid, creatorSocketId, socketId);
+
+    // socket.to(creatorSocketId).emit("call-rejected", {
+    //     roomid,
+    // });
 };

@@ -148,6 +148,7 @@ export const leaveActiveRoom = (
     if (!activeRoom) return;
 
     const copyOfActiveRoom = { ...activeRoom };
+    const isGroup = copyOfActiveRoom.isGroup;
 
     copyOfActiveRoom.participants = copyOfActiveRoom.participants.filter(
         (participant) => participant.socketId !== participantSocketId
@@ -155,7 +156,7 @@ export const leaveActiveRoom = (
 
     activeRooms = activeRooms.filter((room) => room.roomid !== roomId);
 
-    if (copyOfActiveRoom.participants.length > 0) {
+    if (copyOfActiveRoom.participants.length > 0 && isGroup) {
         activeRooms = [...activeRooms, copyOfActiveRoom];
     }
 

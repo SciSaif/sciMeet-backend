@@ -4,12 +4,14 @@ import {
     getActiveRooms,
     getOnlineUsers,
     getSocketServerInstance,
+    leaveActiveRoom,
 } from "../../serverStore.js";
 
 export const updateRooms = (toSpecifiedSocketId: string | null = null) => {
     const io = getSocketServerInstance();
 
     const activeRooms = getActiveRooms();
+    console.log("in update rooms");
 
     if (toSpecifiedSocketId) {
         io.to(toSpecifiedSocketId).emit("active-rooms", { activeRooms });
@@ -26,6 +28,7 @@ export const notifyRoomParticipants = async (
     const activeRoom = getActiveRoom(room_id);
 
     if (!activeRoom) return;
+    console.log("in notify room participants: ");
 
     if (toSpecifiedSocketId) {
         io.to(toSpecifiedSocketId).emit("active-rooms", {
@@ -58,4 +61,33 @@ export const notifyRoomParticipants = async (
             });
         });
     }
+};
+
+// close the room and notify room participants
+export const closeRoom = (
+    roomid: string,
+    creatorSocketId: string,
+    userSocketId: string
+) => {
+    const io = getSocketServerInstance();
+
+    const activeRoom = getActiveRoom(roomid);
+
+    if (!activeRoom) return;
+
+    // close the room and notify the room creator
+    leaveActiveRoom(roomid, creatorSocketId);
+
+    io.to(creatorSocketId).emit("active-rooms", {
+        activeRooms: [],
+    });
+    io.to(userSocketId).emit("active-rooms", {
+        activeRooms: [],
+    });
+
+    console.log("room closed", activeRoom);
+
+    io.to(creatorSocketId).emit("call-rejected", {
+        roomid,
+    });
 };
