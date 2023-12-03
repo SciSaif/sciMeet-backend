@@ -1,4 +1,8 @@
-import { getActiveRoom, leaveActiveRoom } from "../../serverStore.js";
+import {
+    getActiveRoom,
+    ignoreCall,
+    leaveActiveRoom,
+} from "../../serverStore.js";
 import { SocketType } from "../../socketServer.js";
 import {
     closeRoom,
@@ -57,4 +61,19 @@ export const rejectCallHandler = (
     // socket.to(creatorSocketId).emit("call-rejected", {
     //     roomid,
     // });
+};
+
+export const ignoreCallHandler = (
+    socket: SocketType,
+    data: { roomid: string }
+) => {
+    const { roomid } = data;
+    const user_id = socket.data.user?._id;
+    if (!user_id) return;
+
+    ignoreCall(roomid, user_id);
+
+    // send new active rooms to current user
+
+    notifyRoomParticipants(roomid, socket.id);
 };

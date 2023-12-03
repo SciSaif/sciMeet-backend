@@ -1,3 +1,4 @@
+import { log } from "console";
 import conversationModal from "../../models/conversationModal.js";
 import {
     getActiveRoom,
@@ -26,6 +27,7 @@ export const notifyRoomParticipants = async (
     const io = getSocketServerInstance();
 
     const activeRoom = getActiveRoom(room_id);
+    log("active room: ignore", activeRoom);
 
     if (!activeRoom) return;
     console.log("in notify room participants: ");
@@ -51,8 +53,6 @@ export const notifyRoomParticipants = async (
         const onlineParticipants = onlineUsers.filter((onlineUser) => {
             return participants.includes(onlineUser.userId as any);
         });
-
-        console.log("online participants: ", onlineParticipants);
 
         // send to all the participants of the conversation
         onlineParticipants.forEach((onlineParticipant) => {

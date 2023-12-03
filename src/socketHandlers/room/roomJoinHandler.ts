@@ -16,6 +16,13 @@ export const roomJoinHandler = (
     const roomDetails = getActiveRoom(roomid);
     if (!roomDetails) return;
 
+    // check if the user is already in the room
+    const participantsInRoom = roomDetails.participants;
+    const alreadyInRoom = participantsInRoom.find(
+        (participant) => participant.socketId === participantDetails.socketId
+    );
+    if (alreadyInRoom) return;
+
     const allowedParticipants = roomDetails?.conversation_participants;
     if (!allowedParticipants.includes(participantDetails.userId)) return;
 

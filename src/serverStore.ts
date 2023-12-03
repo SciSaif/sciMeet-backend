@@ -120,6 +120,20 @@ export const getActiveRoomByUserId = (userId: string) => {
     return { ...activeRoom };
 };
 
+// function to ignore a group call from user
+export const ignoreCall = (roomId: string, userId: string) => {
+    const room = getActiveRoom(roomId);
+    if (!room) return;
+
+    const updatedRoom = {
+        ...room,
+        ignoredBy: [...(room.ignoredBy || []), userId],
+    };
+
+    activeRooms = activeRooms.filter((room) => room.roomid !== roomId);
+    activeRooms = [...activeRooms, updatedRoom];
+};
+
 export const joinActiveRoom = (
     roomId: string,
     newParticipant: { userId: string; socketId: string }

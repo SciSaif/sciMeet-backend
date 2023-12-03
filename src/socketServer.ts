@@ -14,6 +14,7 @@ import { directChatHistoryHandler } from "./socketHandlers/chat/directChatHistor
 import { roomCreateHandler } from "./socketHandlers/room/roomCreateHandler.js";
 import { roomJoinHandler } from "./socketHandlers/room/roomJoinHandler.js";
 import {
+    ignoreCallHandler,
     rejectCallHandler,
     roomLeavehandler,
 } from "./socketHandlers/room/roomLeaveHandler.js";
@@ -81,6 +82,7 @@ interface ClientToServerEvents {
     "join-room": (a: { roomid: string }) => void;
     "leave-room": (a: { roomid: string }) => void;
     "reject-call": (a: { roomid: string }) => void;
+    "ignore-call": (a: { roomid: string }) => void;
     "conn-init": (a: ConnUserSocketIdType) => void;
     "conn-signal": (a: any) => void;
 }
@@ -192,6 +194,11 @@ export const registerSocketServer = (server: HttpServer) => {
         socket.on("reject-call", (data) => {
             console.log("reject call");
             rejectCallHandler(socket, data);
+        });
+
+        socket.on("ignore-call", (data) => {
+            console.log("ignore call");
+            ignoreCallHandler(socket, data);
         });
 
         socket.on("conn-init", (data) => {
