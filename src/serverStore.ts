@@ -168,6 +168,12 @@ export const leaveActiveRoom = (
         (participant) => participant.socketId !== participantSocketId
     );
 
+    // also add the user to the ignoredBy array
+    copyOfActiveRoom.ignoredBy = [
+        ...(copyOfActiveRoom.ignoredBy || []),
+        participantSocketId,
+    ];
+
     activeRooms = activeRooms.filter((room) => room.roomid !== roomId);
 
     if (copyOfActiveRoom.participants.length > 0 && isGroup) {
