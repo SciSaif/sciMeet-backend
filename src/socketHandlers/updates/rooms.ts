@@ -1,6 +1,7 @@
 import { log } from "console";
 import conversationModal from "../../models/conversationModal.js";
 import {
+    ActiveRoom,
     getActiveRoom,
     getActiveRooms,
     getOnlineUsers,
@@ -37,30 +38,41 @@ export const notifyRoomParticipants = async (
             activeRooms: [activeRoom],
         });
     } else {
-        const conversation_id = activeRoom.conversation_id;
-        // get all the participants of the conversation
-        const conversation = await conversationModal.findById(conversation_id, {
-            participants: 1,
-        });
-
-        if (!conversation) return;
-
-        const participants = conversation.participants;
-        // io.emit("active-rooms", { activeRooms: [activeRoom] });
-
-        const onlineUsers = getOnlineUsers();
-        // get the participants who are online
-        const onlineParticipants = onlineUsers.filter((onlineUser) => {
-            return participants.includes(onlineUser.userId as any);
-        });
-
-        // send to all the participants of the conversation
-        onlineParticipants.forEach((onlineParticipant) => {
-            io.to(onlineParticipant.socketId).emit("active-rooms", {
-                activeRooms: [activeRoom],
-            });
-        });
+        notifyRoomParticipantsByRoom(activeRoom);
     }
+};
+
+export const notifyRoomParticipantsByRoom = async (
+    activeRoom: ActiveRoom,
+    emptyRoom?: boolean
+) => {
+    const io = getSocketServerInstance();
+
+    const conversation_id = activeRoom.conversation_id;
+    // get all the participants of the conversation
+    const conversation = await conversationModal.findById(conversation_id, {
+        participants: 1,
+    });
+
+    if (!conversation) return;
+
+    const participants = conversation.participants;
+    // io.emit("active-rooms", { activeRooms: [activeRoom] });
+
+    const onlineUsers = getOnlineUsers();
+    // get the participants who are online
+    const onlineParticipants = onlineUsers.filter((onlineUser) => {
+        return participants.includes(onlineUser.userId as any);
+    });
+
+    console.log("online participants: ", onlineParticipants);
+
+    // send to all the participants of the conversation
+    onlineParticipants.forEach((onlineParticipant) => {
+        io.to(onlineParticipant.socketId).emit("active-rooms", {
+            activeRooms: emptyRoom ? [] : [activeRoom],
+        });
+    });
 };
 
 // close the room and notify room participants

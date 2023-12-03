@@ -1,3 +1,4 @@
+import { log } from "console";
 import {
     getActiveRoom,
     ignoreCall,
@@ -7,6 +8,7 @@ import { SocketType } from "../../socketServer.js";
 import {
     closeRoom,
     notifyRoomParticipants,
+    notifyRoomParticipantsByRoom,
     updateRooms,
 } from "../updates/rooms.js";
 
@@ -23,23 +25,26 @@ export const roomLeavehandler = (
 
         const updatedActiveRoom = getActiveRoom(roomid);
         if (updatedActiveRoom) {
-            console.log("participants", updatedActiveRoom.participants);
             updatedActiveRoom.participants.forEach((participant) => {
                 socket.to(participant.socketId).emit("room-participant-left", {
                     connUserSocketId: socket.id,
                 });
             });
+            notifyRoomParticipants(roomid);
         } else {
+            log("active room: 2", activeRoom);
             activeRoom.participants.forEach((participant) => {
+                console.log("participant: ", participant);
                 socket.to(participant.socketId).emit("room-participant-left", {
                     connUserSocketId: socket.id,
                     isGroup: activeRoom.isGroup,
                 });
             });
+
+            notifyRoomParticipantsByRoom(activeRoom, true);
         }
 
         // updateRooms();
-        notifyRoomParticipants(roomid);
     }
 };
 
