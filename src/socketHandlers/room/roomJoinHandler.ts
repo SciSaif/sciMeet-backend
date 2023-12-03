@@ -1,6 +1,6 @@
 import { getActiveRoom, joinActiveRoom } from "../../serverStore.js";
 import { SocketType } from "../../socketServer.js";
-import { updateRooms } from "../updates/rooms.js";
+import { notifyRoomParticipants, updateRooms } from "../updates/rooms.js";
 
 export const roomJoinHandler = (
     socket: SocketType,
@@ -38,5 +38,5 @@ export const roomJoinHandler = (
         }
     });
 
-    updateRooms();
+    notifyRoomParticipants(roomid);
 };

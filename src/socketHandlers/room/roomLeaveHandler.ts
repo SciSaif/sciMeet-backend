@@ -38,7 +38,8 @@ export const roomLeavehandler = (
             });
         }
 
-        updateRooms();
+        // updateRooms();
+        notifyRoomParticipants(roomid);
     }
 };
 
