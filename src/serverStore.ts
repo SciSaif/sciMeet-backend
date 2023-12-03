@@ -177,7 +177,7 @@ export const leaveActiveRoom = (
         activeRooms = [...activeRooms, copyOfActiveRoom];
     }
 
-    console.log("new active rooms: ", activeRooms);
+    console.log("new active rooms: 2", activeRooms);
 };
 
 // typing status

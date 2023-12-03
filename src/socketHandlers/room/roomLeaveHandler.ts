@@ -24,6 +24,7 @@ export const roomLeavehandler = (
         leaveActiveRoom(roomid, socket.id);
 
         const updatedActiveRoom = getActiveRoom(roomid);
+        console.log("bruh");
         if (updatedActiveRoom) {
             log("active room: 1", updatedActiveRoom);
 
