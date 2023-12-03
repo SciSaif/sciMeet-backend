@@ -171,6 +171,9 @@ export const leaveActiveRoom = (
     activeRooms = activeRooms.filter((room) => room.roomid !== roomId);
 
     if (copyOfActiveRoom.participants.length > 0 && isGroup) {
+        console.log(
+            "room still has participants, so updating the room instead of deleting it"
+        );
         activeRooms = [...activeRooms, copyOfActiveRoom];
     }
 

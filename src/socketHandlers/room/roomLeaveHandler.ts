@@ -25,6 +25,8 @@ export const roomLeavehandler = (
 
         const updatedActiveRoom = getActiveRoom(roomid);
         if (updatedActiveRoom) {
+            log("active room: 1", updatedActiveRoom);
+
             updatedActiveRoom.participants.forEach((participant) => {
                 socket.to(participant.socketId).emit("room-participant-left", {
                     connUserSocketId: socket.id,
