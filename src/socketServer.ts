@@ -51,6 +51,11 @@ interface ServerToClientEvents {
     "new-group": (a: any) => void;
     "group-deleted": (a: any) => void;
     "group-updated": (a: any) => void;
+    // --------------------------------------------------------------------------
+    "bots-list": (a: any) => void;
+    "new-bot": (a: any) => void;
+    "bot-deleted": (a: any) => void;
+    "bot-updated": (a: any) => void;
 
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;

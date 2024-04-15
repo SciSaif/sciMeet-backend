@@ -8,6 +8,7 @@ import {
     getOnlineUsers,
     getSocketServerInstance,
 } from "../serverStore.js";
+import messageModal from "../models/messageModal.js";
 // for reference:
 // // check if friend that we would like to invite is not current user
 // if (
@@ -267,6 +268,12 @@ export const deleteGroup = asyncRequestHandler(null, async (req, res) => {
     // delete conversation
     await Conversation.findOneAndDelete({
         groupId,
+    });
+
+    // delete the messages
+    const messageIds = conversation.messages.map((m) => m.toString());
+    await messageModal.deleteMany({
+        _id: { $in: messageIds },
     });
 
     // remove files from s3 @TODO

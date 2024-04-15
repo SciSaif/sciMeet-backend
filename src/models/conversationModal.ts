@@ -23,6 +23,14 @@ const conversationSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Group",
     },
+    isBot: {
+        type: Boolean,
+        default: false,
+    },
+    botId: {
+        type: Schema.Types.ObjectId,
+        ref: "Bot",
+    },
 });
 
 export type TConversation = InferSchemaType<typeof conversationSchema> & {

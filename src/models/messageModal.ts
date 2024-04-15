@@ -6,6 +6,7 @@ const messageSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
         ref: "User",
+        required: true,
     },
     content: {
         type: String,
@@ -19,8 +20,8 @@ const messageSchema = new Schema({
     fileType: {
         type: String,
     },
-    date: { type: Date },
-    type: { type: String },
+    date: { type: Date, default: Date.now },
+    type: { type: String, default: "DIRECT" },
     seenBy: {
         type: [
             {
@@ -37,6 +38,27 @@ const messageSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    isBot: {
+        type: Boolean,
+        default: false,
+    },
 });
 
-export default mongoose.model("Message", messageSchema);
+export interface IMessage {
+    _id: mongoose.Types.ObjectId;
+    author: string;
+    content?: string;
+    file?: string;
+    fileName?: string;
+    fileType?: string;
+    date: Date;
+    type: string;
+    seenBy: {
+        userId: string;
+        date: Date;
+    }[];
+    firstMessage: boolean;
+    isBot: boolean;
+}
+
+export default mongoose.model<IMessage>("Message", messageSchema);

@@ -12,6 +12,7 @@ import settings from "../config/settings.js";
 import { isMessageSeen } from "../utils/chatUtils.js";
 import { getSignedUrl } from "../utils/s3Functions.js";
 import { updateGroups } from "./updates/group.js";
+import { updateBots } from "./updates/bot.js";
 const startingPageLimit = settings.startingPageLimit;
 
 export const newConnectionHandler = async (
@@ -44,6 +45,9 @@ export const newConnectionHandler = async (
 
     // update groups list
     updateGroups(user._id);
+
+    // update bots list
+    updateBots(user._id);
 
     // only send the upto latest $startingPageLimit messages or all the unread messages
     for (const conversation of conversations) {

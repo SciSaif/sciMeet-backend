@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import friendInvitationRoutes from "./routes/friendInvitationRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
+import botRoutes from "./routes/botRoutes.js";
 import errorHandler from "./middlewares/errorMiddleware.js";
 import { registerSocketServer } from "./socketServer.js";
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(cors());
 app.use("/auth", authRoutes);
 app.use("/friend-invitation", friendInvitationRoutes);
 app.use("/groups", groupRoutes);
+app.use("/bots", botRoutes);
 
 const server = http.createServer(app);
 registerSocketServer(server);

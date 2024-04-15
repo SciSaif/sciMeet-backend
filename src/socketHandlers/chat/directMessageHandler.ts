@@ -3,11 +3,12 @@ import Message from "../../models/messageModal.js";
 import Conversation from "../../models/conversationModal.js";
 import { sendNewMessage, updateChatHistory } from ".././updates/chat.js";
 import { putObject } from "../../utils/s3Functions.js";
+import { askGemini } from "../../utils/gemini.js";
+import { getHistory } from "../../utils/chatUtils.js";
 
 export interface MessageType {
     conversation_id: string;
     content?: string;
-    // file?: string | ArrayBuffer | null;
     file?: any;
     fileName?: string;
     fileType?: string;
@@ -43,7 +44,10 @@ export const directMessageHandler = async (
 
             await putObject(fullPath, file);
         }
-
+        const bot_user_id = conversation.participants.find(
+            (id) => id.toString() !== user._id.toString()
+        );
+        console.log("messages", conversation?.messages);
         // create a new message
         const message = await Message.create({
             content: content,
@@ -54,6 +58,9 @@ export const directMessageHandler = async (
             fileName: fn,
             fileType,
             firstMessage: conversation?.messages.length === 0 ? true : false,
+            seenBy: conversation.isBot
+                ? [{ userId: bot_user_id, date: new Date() }]
+                : [],
         });
 
         // add message to conversation
@@ -65,6 +72,38 @@ export const directMessageHandler = async (
         sendNewMessage(
             conversation.participants,
             message._id.toString(),
+            conversation._id.toString()
+        );
+
+        // check if conversation is with a bot
+        // if so create a response from the bot
+        if (!conversation.isBot || !content) return;
+
+        // get the messages
+        const messageIds = conversation.messages.map((m) => m.toString());
+        const messages = await Message.find({
+            _id: { $in: messageIds },
+        });
+        // cut the last message because thats not part of history yet
+        messages.pop();
+
+        const history = getHistory(messages);
+        console.log("history", history);
+        const botMessage = await askGemini(content, history);
+        const botMessageObj = await Message.create({
+            content: botMessage,
+            author: bot_user_id,
+            date: new Date(),
+            type: "DIRECT",
+            isBot: true,
+        });
+
+        conversation.messages.push(botMessageObj._id);
+        await conversation.save();
+
+        sendNewMessage(
+            conversation.participants,
+            botMessageObj._id.toString(),
             conversation._id.toString()
         );
     } catch (err) {
