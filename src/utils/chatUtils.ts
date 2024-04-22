@@ -14,11 +14,28 @@ export const isMessageSeen = (message: any, userId: string) => {
 export const getHistory = (messages: IMessage[]): History[] => {
     const messagesWithContent = messages.filter((m) => m.content !== undefined);
 
-    const history = messagesWithContent.map((message) => {
-        return {
-            role: message.isBot ? "model" : "user",
-            parts: [{ text: message.content as string }],
-        };
-    });
+    const history: History[] = [];
+    let currentRole: "model" | "user" | undefined;
+    let currentParts: { text: string }[] = [];
+
+    for (const message of messagesWithContent) {
+        const role = message.isBot ? "model" : "user";
+        const text = message.content as string;
+
+        if (role === currentRole) {
+            currentParts.push({ text });
+        } else {
+            if (currentRole !== undefined) {
+                history.push({ role: currentRole, parts: currentParts });
+            }
+            currentRole = role;
+            currentParts = [{ text }];
+        }
+    }
+
+    if (currentRole !== undefined) {
+        history.push({ role: currentRole, parts: currentParts });
+    }
+
     return history;
 };

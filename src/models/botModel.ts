@@ -22,6 +22,9 @@ const botSchema = new Schema({
     avatar: {
         type: String,
     },
+    api_key: {
+        type: String,
+    },
 });
 
 export default mongoose.model("Bot", botSchema);

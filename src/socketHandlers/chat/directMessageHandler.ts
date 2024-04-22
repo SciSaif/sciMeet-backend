@@ -1,10 +1,11 @@
 import { SocketType } from "../../socketServer.js";
 import Message from "../../models/messageModal.js";
 import Conversation from "../../models/conversationModal.js";
-import { sendNewMessage, updateChatHistory } from ".././updates/chat.js";
+import { sendBotError, sendNewMessage } from ".././updates/chat.js";
 import { putObject } from "../../utils/s3Functions.js";
-import { askGemini } from "../../utils/gemini.js";
 import { getHistory } from "../../utils/chatUtils.js";
+import { BOT_ERROR_CODES, GeminiChat } from "../../utils/gemini.js";
+import botModel from "../../models/botModel.js";
 
 export interface MessageType {
     conversation_id: string;
@@ -88,8 +89,32 @@ export const directMessageHandler = async (
         messages.pop();
 
         const history = getHistory(messages);
-        console.log("history", history);
-        const botMessage = await askGemini(content, history);
+        // if last history message is from user, then merge the last message and current message
+        if (history.length > 0 && history[history.length - 1].role === "user") {
+            const lastMessage = history.pop();
+            const lastText = lastMessage?.parts.map((p) => p.text).join(" ");
+            content = lastText + " " + content;
+        }
+        // get the bot
+        const bot = await botModel.findById(conversation.botId);
+        if (!bot) return;
+
+        const gemini = new GeminiChat(bot.api_key);
+        const botMessage = await gemini.askGemini(content, history);
+
+        if (botMessage === BOT_ERROR_CODES.SAFETY) {
+            // delete the last message
+            conversation.messages.pop();
+            await conversation.save();
+
+            sendBotError(
+                conversation.participants,
+                conversation._id.toString(),
+                BOT_ERROR_CODES.SAFETY
+            );
+            return;
+        }
+
         const botMessageObj = await Message.create({
             content: botMessage,
             author: bot_user_id,
@@ -107,6 +132,6 @@ export const directMessageHandler = async (
             conversation._id.toString()
         );
     } catch (err) {
-        console.log(err);
+        console.log("error", err);
     }
 };

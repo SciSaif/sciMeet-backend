@@ -29,6 +29,7 @@ import {
     updateLastSeen,
     updateTypingUsers,
 } from "./socketHandlers/updates/chat.js";
+import { BOT_ERROR_CODES } from "./utils/gemini.js";
 
 export type ConnUserSocketIdType = {
     connUserSocketId: string;
@@ -51,11 +52,16 @@ interface ServerToClientEvents {
     "new-group": (a: any) => void;
     "group-deleted": (a: any) => void;
     "group-updated": (a: any) => void;
+
     // --------------------------------------------------------------------------
     "bots-list": (a: any) => void;
     "new-bot": (a: any) => void;
     "bot-deleted": (a: any) => void;
     "bot-updated": (a: any) => void;
+    "bot-error": (a: {
+        code: BOT_ERROR_CODES;
+        conversation_id: string;
+    }) => void;
 
     // --------------------------------------------------------------------------
     "room-create": (a: { roomDetails: ActiveRoom }) => void;

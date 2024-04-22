@@ -12,6 +12,7 @@ import settings from "../../config/settings.js";
 import { Types } from "mongoose";
 import { SocketType } from "../../socketServer.js";
 import { getSignedUrl } from "../../utils/s3Functions.js";
+import { BOT_ERROR_CODES } from "../../utils/gemini.js";
 const perPageLimit = settings.perPageLimit;
 const startingPageLimit = settings.startingPageLimit;
 
@@ -128,6 +129,29 @@ export const sendNewMessage = async (
             io.to(socketId).emit("direct-message", {
                 conversation_id,
                 message,
+            });
+        });
+    });
+};
+
+//send bot error to all participants of the conversation
+export const sendBotError = (
+    participants: Types.ObjectId[],
+    conversation_id: string,
+    code: BOT_ERROR_CODES
+) => {
+    const io = getSocketServerInstance();
+
+    participants.forEach((userId) => {
+        const activeConnections = getActiveConnections(userId.toString());
+
+        if (activeConnections.length === 0) {
+            return;
+        }
+        activeConnections.forEach((socketId) => {
+            io.to(socketId).emit("bot-error", {
+                conversation_id,
+                code,
             });
         });
     });

@@ -18,16 +18,24 @@ export const createBot = asyncRequestHandler(
         bot_name: z.string().min(1),
         participants: z.array(z.string()),
         avatar: z.string(),
+        api_key: z.string().optional(),
     }),
     async (req, res) => {
-        let { bot_name, participants, avatar } = req.body;
+        let { bot_name, participants, avatar, api_key } = req.body;
         const user = req.user;
+
+        // check if bot name already exists
+        const botExists = await Bot.findOne({ bot_name });
+        if (botExists) {
+            return res.status(400).json({ toast: "Bot name already exists" });
+        }
 
         // create a bot with the given botName
         const bot = await Bot.create({
             bot_name,
             creator_id: user._id,
             avatar,
+            api_key,
         });
 
         // add current userid to participants
@@ -83,9 +91,10 @@ export const updateBot = asyncRequestHandler(
         bot_id: z.string(),
         bot_name: z.string().min(1).optional(),
         description: z.string().min(1).optional(),
+        api_key: z.string().optional(),
     }),
     async (req, res) => {
-        let { bot_name, description, bot_id } = req.body;
+        let { bot_name, description, bot_id, api_key } = req.body;
         const user = req.user;
 
         // check if bot exists
@@ -105,6 +114,7 @@ export const updateBot = asyncRequestHandler(
             {
                 bot_name,
                 description,
+                api_key,
             },
             { new: true }
         );
