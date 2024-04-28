@@ -118,14 +118,16 @@ export const sendNewMessage = async (
     if (message.file) {
         message.file = await getSignedUrl(message.file);
     }
-
+    console.log(participants);
     participants.forEach((userId) => {
         const activeConnections = getActiveConnections(userId.toString());
-
+        console.log("activeConnections", activeConnections);
         if (activeConnections.length === 0) {
             return;
         }
+
         activeConnections.forEach((socketId) => {
+            console.log("emitting message");
             io.to(socketId).emit("direct-message", {
                 conversation_id,
                 message,

@@ -48,7 +48,7 @@ export const directMessageHandler = async (
         const bot_user_id = conversation.participants.find(
             (id) => id.toString() !== user._id.toString()
         );
-        console.log("messages", conversation?.messages);
+        // console.log("messages", conversation?.messages);
         // create a new message
         const message = await Message.create({
             content: content,

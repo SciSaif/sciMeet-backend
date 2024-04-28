@@ -45,6 +45,8 @@ export const removeConnectedUser = (socketId: string) => {
 
 export const getActiveConnections = (userId: string) => {
     let activeConnections = <string[]>[];
+    // console.log("connected users: ", connectedUsers);
+    // console.log("userId: ", userId);
     connectedUsers.forEach(function (value, key) {
         if (value.userId === userId) {
             activeConnections.push(key);

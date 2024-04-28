@@ -150,8 +150,7 @@ export const registerSocketServer = (server: HttpServer) => {
     };
 
     io.on("connection", (socket) => {
-        console.log("connected");
-        console.log(socket.id);
+        console.log("connected ", socket.id);
 
         newConnectionHandler(socket, io);
         emitOnlineUsers();
