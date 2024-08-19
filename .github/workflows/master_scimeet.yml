@@ -48,4 +48,4 @@ jobs:
         app-name: 'scimeet'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_d0a2db4dc0c249d6a55843a60dd97146 }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_6c4c1cd66b9c424ea3c703c1369337e0 }}/scisaif/scimeet-backend:${{ github.sha }}'
+        images: 'index.docker.io/scisaif/scimeet-backend:${{ github.sha }}'
