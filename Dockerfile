@@ -24,9 +24,10 @@ WORKDIR /usr/src/app
 
 # Copy only the necessary files from the build stage
 COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/package*.json ./
 
 # Install only the production dependencies
-COPY --from=builder /usr/src/app/node_modules ./node_modules
+RUN npm install --only=production
 
 # Expose the port the app runs on
 EXPOSE 80
