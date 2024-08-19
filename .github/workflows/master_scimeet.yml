@@ -26,15 +26,11 @@ jobs:
         username: ${{ secrets.AzureAppService_ContainerUsername_6c4c1cd66b9c424ea3c703c1369337e0 }}
         password: ${{ secrets.AzureAppService_ContainerPassword_5f085820603e4cdca19e0ea0a272bb36 }}
 
-    - name: Echo container image URL
-      run: |
-        echo "Container image URL: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_6c4c1cd66b9c424ea3c703c1369337e0 }}/scisaif/scimeet-backend:${{ github.sha }}"
-
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_6c4c1cd66b9c424ea3c703c1369337e0 }}/scisaif/scimeet-backend:${{ github.sha }}
+        tags: index.docker.io/scisaif/scimeet-backend:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
