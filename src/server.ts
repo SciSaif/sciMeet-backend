@@ -18,6 +18,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get("/health", (req, res) => {
+    res.send("Server is running!");
+});
+
 app.use("/auth", authRoutes);
 app.use("/friend-invitation", friendInvitationRoutes);
 app.use("/groups", groupRoutes);
