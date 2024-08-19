@@ -26,6 +26,9 @@ jobs:
         username: ${{ secrets.AzureAppService_ContainerUsername_6c4c1cd66b9c424ea3c703c1369337e0 }}
         password: ${{ secrets.AzureAppService_ContainerPassword_5f085820603e4cdca19e0ea0a272bb36 }}
 
+    - name: echo github.sha
+      run: echo ${{ github.sha }}
+
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
